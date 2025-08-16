@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnlyCats</title>
+    <style>
+        /*
+        ====================================================
+        CSS STYLES
+        ====================================================
+        This section contains all the CSS for styling the page.
+        It's designed to mimic the layout of Instagram,
+        as well as the hand-drawn diagram provided.
+        */
+
+        /* Global styles and body setup */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fafafa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Main container for the entire page content */
+        .page-container {
+            width: 100%;
+            max-width: 935px; /* Instagram's main content width */
+            padding-top: 54px; /* Space for a fixed header if added later */
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Container for the main content area (posts feed) */
+        .main-content {
+            width: 100%;
+            max-width: 614px; /* Main column width */
+            padding-right: 28px; /* Spacing between main content and sidebar */
+            box-sizing: border-box;
+        }
+
+        /* Container for the right sidebar */
+        .right-sidebar {
+            width: 100%;
+            max-width: 293px; /* Sidebar width */
+            padding-left: 28px;
+            box-sizing: border-box;
+        }
+
+        /* Header styling (for the top navigation bar) */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #fff;
+            border-bottom: 1px solid #dbdbdb;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .header-content {
+            width: 100%;
+            max-width: 935px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 54px;
+        }
+
+        .header-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #262626;
+            text-decoration: none;
+        }
+
+        .search-bar {
+            width: 215px;
+            height: 28px;
+            border: 1px solid #dbdbdb;
+            background-color: #fafafa;
+            border-radius: 3px;
+            padding: 0 10px;
+        }
+
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .nav-icons a {
+            font-size: 14px;
+            font-weight: 600;
+            color: #262626;
+            text-decoration: none;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        #create-post-btn {
+            background-color: #0095f6;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        #create-post-btn:hover {
+            background-color: #0081e7;
+        }
+
+        .profile-dropdown-container {
+            position: relative;
+        }
+
+        .nav-icons .profile-pic {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid #dbdbdb;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #dbdbdb;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 8px 0;
+            min-width: 150px;
+            z-index: 1500;
+            
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+        }
+        
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 400;
+            color: #262626;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #fafafa;
+        }
+
+        /* Post styling */
+        .post {
+            background-color: #fff;
+            border: 1px solid #dbdbdb;
+            border-radius: 3px;
+            margin-bottom: 24px;
+        }
+        
+        .text-only-post {
+            margin-bottom: 12px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .post-header .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .post-header .user-name {
+            font-weight: 600;
+            color: #262626;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .post-image-container {
+            width: 100%;
+        }
+
+        .post-image {
+            width: 100%;
+            display: block;
+        }
+        
+        .post-caption {
+            padding: 16px;
+        }
+        
+        .text-only-post .post-caption {
+            padding-top: 0;
+        }
+        
+        .text-only-post .post-caption p {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .margin-between-posts {
+            height: 24px;
+            display: block;
+        }
+
+        #posts-feed {
+            margin-top: 24px;
+        }
+
+        /* Right sidebar styling */
+        .right-sidebar {
+            width: 100%;
+            max-width: 293px;
+            padding-left: 28px;
+            box-sizing: border-box;
+        }
+
+        .sidebar-container {
+            position: fixed;
+            top: 100px;
+            width: 293px;
+        }
+
+        .sidebar-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-profile .profile-pic {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .sidebar-profile-info {
+            flex-grow: 1;
+        }
+
+        .sidebar-profile-info .username {
+            font-weight: 600;
+            font-size: 14px;
+            color: #262626;
+        }
+        
+        .sidebar-profile-info .name {
+            font-size: 14px;
+            color: #8e8e8e;
+            margin-top: 4px;
+        }
+
+        .sidebar-profile .switch-button {
+            color: #0095f6;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .suggestions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .suggestions-header span {
+            font-weight: 600;
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+
+        .suggestions-header a {
+            color: #262626;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .suggestion-item .suggestion-profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .suggestion-item-info {
+            flex-grow: 1;
+        }
+
+        .suggestion-item-info .username {
+            font-weight: 600;
+            font-size: 14px;
+            color: #262626;
+        }
+        
+        .suggestion-item-info .follow-info {
+            font-size: 12px;
+            color: #8e8e8e;
+            margin-top: 2px;
+        }
+
+        .suggestion-item .follow-button {
+            color: #0095f6;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Footer for the sidebar */
+        .sidebar-footer {
+            margin-top: 24px;
+            font-size: 11px;
+            color: #c7c7c7;
+        }
+        
+        .sidebar-footer a {
+            color: #c7c7c7;
+            text-decoration: none;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: visibility 0s, opacity 0.3s linear;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 24px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #dbdbdb;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: #8e8e8e;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .modal-form-group input,
+        .modal-form-group textarea {
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        .modal-form-group textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .post-type-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .post-type-buttons button {
+            background-color: #efefef;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #262626;
+            transition: background-color 0.2s;
+        }
+
+        .post-type-buttons button.active {
+            background-color: #0095f6;
+            color: #fff;
+            border-color: #0095f6;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 16px;
+            border-top: 1px solid #dbdbdb;
+        }
+
+        .modal-actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #submit-post {
+            background-color: #0095f6;
+            color: #fff;
+        }
+        
+        #cancel-post {
+            background-color: #efefef;
+            color: #262626;
+        }
+
+        /* Profile page styles */
+        .profile-container {
+            width: 100%;
+            padding: 24px 0;
+            box-sizing: border-box;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 44px;
+            border-bottom: 1px solid #dbdbdb;
+            margin-bottom: 44px;
+            box-sizing: border-box;
+        }
+
+        .profile-header .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-right: 80px;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .profile-username {
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+
+        .profile-post-count {
+            font-size: 16px;
+            color: #8e8e8e;
+            margin-bottom: 8px;
+        }
+
+        .profile-full-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .profile-post-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .profile-post-item {
+            position: relative;
+            padding-bottom: 100%;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .profile-post-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s;
+        }
+        
+        .profile-post-item img:hover {
+            transform: scale(1.05);
+        }
+        
+        .no-posts-message {
+            text-align: center;
+            color: #8e8e8e;
+            font-size: 18px;
+            padding: 50px 0;
+        }
+
+        #content-area {
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="header-logo" id="home-link">OnlyCats</a>
+            <input type="text" class="search-bar" placeholder="Search">
+            <div class="nav-icons">
+                <a href="#" id="home-btn">Home</a>
+                <a href="#" id="create-post-btn">Create</a>
+                <a href="#">Messages</a>
+                <div class="profile-dropdown-container">
+                    <a href="#" id="profile-pic-btn"><img src="" alt="Profile" class="profile-pic" id="header-profile-pic"></a>
+                    <div id="profile-dropdown-menu" class="dropdown-menu">
+                        <a href="#" id="my-profile-link">Profile</a>
+                        <a href="#">Settings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container">
+
+        <div class="main-content">
+            <div id="content-area">
+                </div>
+        </div>
+
+        <div class="right-sidebar">
+            <div class="sidebar-container">
+                <div class="sidebar-profile">
+                    <img id="current-user-pfp" src="" alt="Profile" class="profile-pic">
+                    <div class="sidebar-profile-info">
+                        <div id="current-user-username" class="username"></div>
+                        <div id="current-user-fullname" class="name"></div>
+                    </div>
+                    <div class="switch-button">Switch</div>
+                </div>
+
+                <div class="suggestions-header">
+                    <span>Suggestions For You</span>
+                    <a href="#">See All</a>
+                </div>
+
+                <div id="suggestions-list" class="suggestions-list">
+                    </div>
+
+                <div class="sidebar-footer">
+                    <p>
+                        <a href="#">About</a> · <a href="#">Help</a> · <a href="#">Press</a> · <a href="#">API</a> · <a href="#">Jobs</a> · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Locations</a> · <a href="#">Top Accounts</a> · <a href="#">Hashtags</a> · <a href="#">Language</a>
+                    </p>
+                    <p>© 2025 ONLYCATS FROM FACEBOOK</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="create-post-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create a new post</h2>
+                <span class="close-modal" id="close-modal-btn">&times;</span>
+            </div>
+            <form id="create-post-form" class="modal-form">
+                <div class="post-type-buttons">
+                    <button type="button" class="post-type-btn active" data-type="post">Post (Image + Text)</button>
+                    <button type="button" class="post-type-btn" data-type="text-only">Text Only</button>
+                </div>
+
+                <div class="modal-form-group" id="image-url-group">
+                    <label for="post-image-url">Image URL</label>
+                    <input type="text" id="post-image-url" placeholder="Paste an image URL here...">
+                </div>
+
+                <div class="modal-form-group">
+                    <label for="post-caption">Caption</label>
+                    <textarea id="post-caption" placeholder="Write a caption..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancel-post">Cancel</button>
+                    <button type="submit" id="submit-post">Share</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // ===============================================
+        // JSON DATA BLOCK
+        // ===============================================
+        
+        const users = {
+            "Starboy": {
+                 "pfp": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4pazS6uenaImGEZlNjRylhKhkd8gWTQ2dFA&s",
+                 "fullName": "Starboy The Ponderer",
+                 "posts": []
+             },
+             "amethyst_grl": {
+                 "pfp": "https://i.pinimg.com/736x/d4/26/60/d4266077b09e52a30ef8d53fc6faac3c.jpg",
+                 "fullName": "Amethyst Girl",
+                 "posts": [
+                     {
+                         "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxcV2DjOX2plp7rP_qDILaXcfd2863RRHXYA&s",
+                         "caption": "Just another day on the court. 🏀 #OnlyCats #Basketball",
+                         "timestamp": 1754291726715
+                     }
+                 ]
+             },
+             "kenoere": {
+                 "pfp": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSK5TAtmcluu-bMDlLuEOQwHWRR1YuoXKJbA&s",
+                 "fullName": "Kenoere P.",
+                 "posts": []
+             },
+             "lofti232": {
+                 "pfp": "https://www.shutterstock.com/image-photo/tabby-cat-profile-picture-600nw-1193146639.jpg",
+                 "fullName": "Lofti232",
+                 "posts": []
+             },
+             "sapphireblues_19": {
+                 "pfp": "https://i.pinimg.com/736x/6a/fc/5c/6afc5c43a5050054d7482202e3b75239.jpg",
+                 "fullName": "Sapphire Blues",
+                 "posts": []
+             },
+             "gwanguri77": {
+                 "pfp": "https://i.pinimg.com/564x/9f/aa/a1/9faaa1fedc94c355a4256ba6207c7714.jpg",
+                 "fullName": "Gwanguri 77",
+                 "posts": []
+             },
+             "lil_lapisla": {
+                 "pfp": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjPi5JtE4ooOApfi-pPM9hGhIGpsEm2Ei_4A&s",
+                 "fullName": "Lil' Lapisla",
+                 "posts": []
+             },
+             "dark_emeralds": {
+                 "pfp": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk5S4LfVxqds-Mti4-r7YgxDjbZR-a2jJ9lZ5-GncHvibUSA75-0QApkLukbro5hJJPuQ&usqp=CAU",
+                 "fullName": "Dark Emeralds",
+                 "posts": []
+             },
+             "hey_sarah": {
+                 "pfp": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSak08Dm_BgB6yFbBJV5l2f8nUx1Ry8TLZySQ&s",
+                 "fullName": "Hey Sarah",
+                 "posts": []
+             },
+             "photosby_em": {
+                 "pfp": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLF6XMpU1FlfwkFJmqvlDPANsGmJM8Nxv59A&s",
+                 "fullName": "Photos by Em",
+                 "posts": []
+             },
+             "heych2002": {
+                 "pfp": "https://i.pinimg.com/736x/71/fe/83/71fe83b3f2423bb24a925ff72565fd0e.jpg",
+                 "fullName": "Hey Ch2002",
+                 "posts": []
+             },
+             "kenzoere": {
+                 "pfp": "https://i.pinimg.com/736x/4a/f6/ba/4af6ba4629d852ee02594da0502f4de6.jpg",
+                 "fullName": "Kenzoere",
+                 "posts": []
+             },
+             "some_cat_lover": {
+                 "pfp": "https://i.pinimg.com/736x/4b/58/86/4b588685d3f35610383b7618a0c247dc.jpg",
+                 "fullName": "A Cat Lover",
+                 "posts": [
+                     {
+                         "image": null,
+                         "caption": "This is a post with only text content. It demonstrates a text-only post, as requested by the diagram. It's a great way to share thoughts without a photo.",
+                         "timestamp": 1754291725715
+                     }
+                 ]
+             },
+             "another_cat_fan": {
+                 "pfp": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-uAp32d_v34Uy3lDhTIopvU9a779VjIMW0g&s",
+                 "fullName": "Another Cat Fan",
+                 "posts": [
+                     {
+                         "image": "https://i.pinimg.com/736x/b2/60/94/b26094970505bcd59c2e5fe8b6f41cf0.jpg",
+                         "caption": "Look at this fluffy cat! So cute! 😻",
+                         "timestamp": 1754291724715
+                     }
+                 ]
+             },
+             "dev_user": {
+                 "pfp": "https://images.unsplash.com/photo-1619988678561-991c9a519fb1?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGNhdCUyMHByb2ZpbGV8ZW58MHx8MHx8fDA%3D",
+                 "fullName": "Developer User",
+                 "posts": []
+                    }
+                }
+
+        const sidebarData = {
+            currentUser: "Starboy",
+            suggestions: [
+                { user: "kenoere", followedBy: "heych2002 + 7 more" },
+                { user: "lofti232", followedBy: "kenoere + 12 more" },
+                { user: "sapphireblues_19", followedBy: "lofti232 + 3 more" },
+                { user: "gwanguri77", followedBy: "lofti232 + 19 more" },
+                { user: "amethyst_grl", followedBy: "dark_emeralds" }
+            ]
+        };
+
+        // ===============================================
+        // JAVASCRIPT FUNCTIONS TO RENDER THE PAGE
+        // ===============================================
+        
+        function renderHomePage() {
+            const contentArea = document.getElementById('content-area');
+            const allPosts = Object.entries(users)
+                .flatMap(([username, user]) => 
+                    user.posts.map(post => ({ ...post, user: username }))
+                )
+                .sort((a, b) => b.timestamp - a.timestamp);
+
+            let postsHtml = '<div id="posts-feed">';
+            allPosts.forEach(post => {
+                postsHtml += createPost(post);
+                postsHtml += `<div class="margin-between-posts"></div>`;
+            });
+            postsHtml += '</div>';
+            contentArea.innerHTML = postsHtml;
+            
+            attachPostEventListeners();
+        }
+
+        function renderProfilePage(username) {
+            const contentArea = document.getElementById('content-area');
+            const user = users[username];
+            const postCount = user.posts.length;
+
+            const postsGridHtml = user.posts.length > 0 ?
+                user.posts.map(post => `
+                    <div class="profile-post-item">
+                        <img src="${post.image || 'https://via.placeholder.com/300x300/e0e0e0/000000?text=TEXT+POST'}" alt="Post Image">
+                    </div>
+                `).join('') : '<div class="no-posts-message">This user has not posted yet.</div>';
+
+            const profileHtml = `
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <img src="${user.pfp}" alt="${user.fullName}'s profile picture" class="profile-pic">
+                        <div class="profile-info">
+                            <h1 class="profile-username">${username}</h1>
+                            <div class="profile-post-count">${postCount} posts</div>
+                            <div class="profile-full-name">${user.fullName}</div>
+                        </div>
+                    </div>
+                    <div class="profile-post-grid">
+                        ${postsGridHtml}
+                    </div>
+                </div>
+            `;
+            contentArea.innerHTML = profileHtml;
+        }
+
+        function createPost(postData) {
+            const postUser = users[postData.user];
+            const postClass = postData.image ? "post" : "post text-only-post";
+            const captionClass = postData.image ? "" : "text-only-caption";
+
+            const postImageHtml = postData.image ?
+                `<div class="post-image-container">
+                    <img src="${postData.image}" alt="Post Image" class="post-image">
+                </div>` : '';
+
+            return `
+                <div class="${postClass}">
+                    <div class="post-header">
+                        <img src="${postUser.pfp}" alt="${postUser.fullName}'s avatar" class="user-avatar">
+                        <span class="user-name" data-username="${postData.user}">${postData.user}</span>
+                    </div>
+                    ${postImageHtml}
+                    <div class="post-caption ${captionClass}">
+                        <p><strong>${postData.user}</strong> ${postData.caption}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createSuggestion(suggestionData) {
+            const user = users[suggestionData.user];
+            
+            return `
+                <div class="suggestion-item">
+                    <img src="${user.pfp}" alt="${user.fullName}'s profile picture" class="suggestion-profile-pic">
+                    <div class="suggestion-item-info">
+                        <span class="username" data-username="${suggestionData.user}">${suggestionData.user}</span>
+                        <div class="follow-info">Followed by ${suggestionData.followedBy}</div>
+                    </div>
+                    <div class="follow-button">Follow</div>
+                </div>
+            `;
+        }
+        
+        function attachPostEventListeners() {
+            document.querySelectorAll('.user-name').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const username = e.target.dataset.username;
+                    if (username) {
+                        renderProfilePage(username);
+                    }
+                });
+            });
+            document.querySelectorAll('.suggestion-item-info .username').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const username = e.target.dataset.username;
+                    if (username) {
+                        renderProfilePage(username);
+                    }
+                });
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const suggestionsList = document.getElementById('suggestions-list');
+            const currentUserPfp = document.getElementById('current-user-pfp');
+            const currentUserUsername = document.getElementById('current-user-username');
+            const currentUserFullname = document.getElementById('current-user-fullname');
+            const createPostBtn = document.getElementById('create-post-btn');
+            const createPostModal = document.getElementById('create-post-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cancelPostBtn = document.getElementById('cancel-post');
+            const createPostForm = document.getElementById('create-post-form');
+            const postTypeBtns = document.querySelectorAll('.post-type-btn');
+            const postImageUrlInput = document.getElementById('post-image-url');
+            const postCaptionTextarea = document.getElementById('post-caption');
+            const imageUrlGroup = document.getElementById('image-url-group');
+            const profilePicBtn = document.getElementById('profile-pic-btn');
+            const profileDropdownMenu = document.getElementById('profile-dropdown-menu');
+            const headerProfilePic = document.getElementById('header-profile-pic');
+            
+            const homeLink = document.getElementById('home-link');
+            const homeBtn = document.getElementById('home-btn');
+            const myProfileLink = document.getElementById('my-profile-link');
+
+            let currentPostType = 'post';
+            
+            renderHomePage();
+
+            const currentUserData = users[sidebarData.currentUser];
+            currentUserPfp.src = currentUserData.pfp;
+            currentUserUsername.textContent = sidebarData.currentUser; 
+            currentUserFullname.textContent = currentUserData.fullName; 
+            headerProfilePic.src = currentUserData.pfp;
+
+            sidebarData.suggestions.forEach(suggestion => {
+                suggestionsList.innerHTML += createSuggestion(suggestion);
+            });
+            
+            homeLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                renderHomePage();
+            });
+            homeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                renderHomePage();
+            });
+            myProfileLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                renderProfilePage(sidebarData.currentUser);
+            });
+
+            createPostBtn.addEventListener('click', () => {
+                createPostModal.classList.add('active');
+            });
+            closeModalBtn.addEventListener('click', () => {
+                createPostModal.classList.remove('active');
+            });
+            cancelPostBtn.addEventListener('click', () => {
+                  postImageUrlInput.value = '';
+                  postCaptionTextarea.value = '';
+                  createPostModal.classList.remove('active');
+            });
+            createPostModal.addEventListener('click', (e) => {
+                if (e.target === createPostModal) {
+                    createPostModal.classList.remove('active');
+                }
+            });
+
+            postTypeBtns.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    postTypeBtns.forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentPostType = e.target.dataset.type;
+                    if (currentPostType === 'post') {
+                        imageUrlGroup.style.display = 'flex';
+                    } else {
+                        imageUrlGroup.style.display = 'none';
+                    }
+                });
+            });
+
+            createPostForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const caption = postCaptionTextarea.value.trim();
+                const imageUrl = postImageUrlInput.value.trim();
+                
+                if (!caption && currentPostType === 'text-only') {
+                    alert('Caption cannot be empty for a text-only post.');
+                    return;
+                }
+                
+                const currentUserUsername = sidebarData.currentUser;
+                const newPost = {
+                    image: currentPostType === 'post' ? imageUrl : null,
+                    caption: caption || '',
+                    timestamp: Date.now()
+                };
+
+                users[currentUserUsername].posts.unshift(newPost);
+                
+                if (document.getElementById('posts-feed')) {
+                    renderHomePage();
+                } else {
+                    renderProfilePage(currentUserUsername);
+                }
+                
+                createPostForm.reset();
+                createPostModal.classList.remove('active');
+            });
+
+            profilePicBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                profileDropdownMenu.classList.toggle('active');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!profileDropdownMenu.contains(e.target) && !profilePicBtn.contains(e.target)) {
+                    profileDropdownMenu.classList.remove('active');
+                }
+            });
+
+            profileDropdownMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    console.log(`${e.target.textContent} link clicked!`);
+                    profileDropdownMenu.classList.remove('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
