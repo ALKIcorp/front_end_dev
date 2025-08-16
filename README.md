@@ -1,4 +1,4 @@
-README
+README (open README.md to see clean layout)
 
 Project directory contents:
 
