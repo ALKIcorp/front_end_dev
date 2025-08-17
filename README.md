@@ -12,3 +12,7 @@ Project directory contents:
 ├── package.json                    - Project metadata + dependencies
 ├── supabaseClient.mjs              - Supabase client configuration (URL + anon key)
 └── test_connection.mjs             - Script to test connection to Supabase
+
+## Dev/Codex Workbench
+Tracking GPT integration work on this branch.
+
