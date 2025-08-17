@@ -1,0 +1,11 @@
+# dependencies
+node_modules/
+
+# env keys (if you ever add one)
+.env
+.env.local
+.env.*.local
+
+# OS/editor
+.DS_Store
+.vscode/
