@@ -176,7 +176,7 @@
     .sidebar-footer { margin-top:24px; font-size:11px; color:#c7c7c7; }
     .sidebar-footer a { color:#c7c7c7; text-decoration:none; }
 
-    /* Modal */
+    /* Modal (shared styles for Create & Login) */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.6);
       display:flex; justify-content:center; align-items:center; z-index:2000;
@@ -210,12 +210,34 @@
     .profile-username { font-size:28px; font-weight:300; margin-bottom:12px; }
     .profile-post-count { font-size:16px; color:#8e8e8e; margin-bottom:8px; }
     .profile-full-name { font-size:16px; font-weight:600; }
+
     .profile-post-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:28px; }
     .profile-post-item { position:relative; padding-bottom:100%; overflow:hidden; cursor:pointer; }
     .profile-post-item img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: transform .2s; }
     .profile-post-item img:hover { transform: scale(1.05); }
 
     #content-area { width:100%; }
+
+    /* ====== AUTH GATE & BUTTONS ====== */
+    #guest-login-screen {
+      position: fixed; inset: 0; display: none;
+      align-items: center; justify-content: center;
+      background: #fafafa; z-index: 1500;
+    }
+    #guest-login-card {
+      background:#fff; border:1px solid #dbdbdb; border-radius:12px;
+      width:90%; max-width:420px; padding:24px; text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,0.12);
+    }
+    #guest-login-title { margin:0 0 8px; font-size:22px; font-weight:700; }
+    #guest-login-sub   { margin:0 0 16px; color:#666; font-size:14px; }
+
+    #guest-signin-btn, #submit-login {
+      background:#0095f6; color:#fff;
+      padding:10px 16px; border:0; border-radius:8px;
+      font-weight:600; cursor:pointer;
+    }
+    #guest-signin-btn:hover, #submit-login:hover { background:#0081e7; }
   </style>
 </head>
 <body>
@@ -232,6 +254,7 @@
           <div id="profile-dropdown-menu" class="dropdown-menu">
             <a href="#" id="my-profile-link">Profile</a>
             <a href="#">Settings</a>
+            <a href="#" id="logout-link">Log out</a>
           </div>
         </div>
       </div>
@@ -251,7 +274,7 @@
             <div id="current-user-username" class="username"></div>
             <div id="current-user-fullname" class="name"></div>
           </div>
-          <div class="switch-button">Switch</div>
+          <div class="switch-button" id="switch-account-btn">Switch</div>
         </div>
 
         <div class="suggestions-header">
@@ -301,6 +324,40 @@
       </form>
     </div>
   </div>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Sign in</h2>
+        <span class="close-modal" id="close-login-btn">&times;</span>
+      </div>
+      <form id="login-form" class="modal-form" autocomplete="on">
+        <div class="modal-form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="you@example.com" required />
+        </div>
+        <div class="modal-form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+        <div id="login-error" style="color:#d33; font-size:13px; min-height:18px;"></div>
+        <div class="modal-actions">
+          <button type="button" id="cancel-login">Cancel</button>
+          <button type="submit" id="submit-login">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Guest Login Screen (shown when no user is logged in) -->
+  <section id="guest-login-screen" aria-hidden="true">
+    <div id="guest-login-card">
+      <h2 id="guest-login-title">Welcome to OnlyCats</h2>
+      <p id="guest-login-sub">Sign in to post, like, and follow.</p>
+      <button id="guest-signin-btn">Sign in</button>
+    </div>
+  </section>
 
   <!-- THE ONLY SCRIPT: Supabase + App -->
   <script type="module">
@@ -608,7 +665,7 @@
 
     async function fetchLikeCount(postId) {
       const { count, error } = await supabase
-        .from('post_likes') // table name in your DB
+        .from('post_likes') // keep your current table name
         .select('id', { count: 'exact', head: true })
         .eq('post_id', postId);
       if (error) return 0;
@@ -676,13 +733,110 @@
       return Number(span?.getAttribute('data-count') || '0');
     }
 
-    // ====== BOOT ======
+    // ====== AUTH MODAL HELPERS (additions) ======
+    function openLoginModal() { $('#login-modal')?.classList.add('active'); }
+    function closeLoginModal() { $('#login-modal')?.classList.remove('active'); }
+
+    async function signIn(email, password) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    }
+    async function signOut() {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    }
+
+    // ====== AUTH GATE (show blank login screen when logged out) ======
+    function showGuestLogin() {
+      const el = $('#guest-login-screen');
+      if (el) el.style.display = 'flex';
+      const page = document.querySelector('.page-container');
+      if (page) page.style.display = 'none';
+    }
+    function hideGuestLogin() {
+      const el = $('#guest-login-screen');
+      if (el) el.style.display = 'none';
+      const page = document.querySelector('.page-container');
+      if (page) page.style.display = 'flex';
+    }
+    async function syncAuthGate() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        hideGuestLogin();
+        await renderHomePage();   // Render feed for logged-in users
+      } else {
+        showGuestLogin();         // Don’t render the feed when logged out
+      }
+    }
+
+    // ====== AUTH UI WIRING (robust + fixes submit) ======
+    function wireAuthUI() {
+      // open login modal from sidebar Switch (delegation = works after re-renders)
+      document.body.addEventListener('click', (e) => {
+        const switchBtn = e.target.closest('#switch-account-btn');
+        if (switchBtn) { e.preventDefault(); openLoginModal(); }
+      });
+
+      // open login modal from guest screen
+      document.body.addEventListener('click', (e) => {
+        const guestBtn = e.target.closest('#guest-signin-btn');
+        if (guestBtn) { e.preventDefault(); openLoginModal(); }
+      });
+
+      // close interactions
+      $('#close-login-btn')?.addEventListener('click', () => closeLoginModal());
+      $('#cancel-login')?.addEventListener('click', () => closeLoginModal());
+      $('#login-modal')?.addEventListener('click', (e) => {
+        if (e.target === $('#login-modal')) closeLoginModal();
+      });
+
+      // ensure clicking the "Sign in" button triggers the form submit reliably
+      $('#submit-login')?.addEventListener('click', (e) => {
+        e.preventDefault(); $('#login-form')?.requestSubmit();
+      });
+
+      // submit login form
+      $('#login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = $('#login-email')?.value?.trim();
+        const password = $('#login-password')?.value;
+        const errBox = $('#login-error');
+
+        try {
+          errBox.textContent = '';
+          await signIn(email, password);
+          closeLoginModal();
+          await initSidebarCurrentUser();
+          await syncAuthGate();   // refresh which screen is shown
+        } catch (err) {
+          errBox.textContent = err?.message || 'Failed to sign in';
+          console.error('Sign-in error:', err);
+        }
+      });
+
+      // logout link
+      $('#logout-link')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await signOut();
+        await initSidebarCurrentUser();
+        await syncAuthGate();     // show guest screen again
+      });
+
+      // session changes (another tab)
+      supabase.auth.onAuthStateChange(async () => {
+        await initSidebarCurrentUser();
+        await syncAuthGate();
+      });
+    }
+
+    // ====== BOOT (auth gate decides whether to render feed) ======
     document.addEventListener('DOMContentLoaded', async () => {
       wireHeaderDropdown();
       wireNav();
       wireCreatePostModal();
+      wireAuthUI();
       await initSidebarCurrentUser();
-      await renderHomePage();
+      await syncAuthGate();   // decides: show Guest screen OR render feed
     });
   </script>
 </body>
