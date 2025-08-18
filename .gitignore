@@ -1,11 +1,40 @@
-# dependencies
+# === OnlyCats front-end .gitignore ===
+# Dependencies
 node_modules/
 
-# env keys (if you ever add one)
+# Environment files (never commit secrets)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
-# OS/editor
-.DS_Store
+# Build outputs
+dist/
+build/
+.out/
+.next/
+.nuxt/
+.svelte-kit/
+
+# Caches / tooling
+.vite/
+.parcel-cache/
+.cache/
+coverage/
+.npm/
+.yarn/
+.pnpm-store/
+
+# Editors/OS
 .vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+
+# Misc
+*.local
