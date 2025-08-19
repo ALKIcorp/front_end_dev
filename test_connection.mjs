@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 import { supabase } from './supabaseClient.mjs';
 
 try {
