@@ -356,10 +356,41 @@
       <h2 id="guest-login-title">Welcome to OnlyCats</h2>
       <p id="guest-login-sub">Sign in to post, like, and follow.</p>
       <button id="guest-signin-btn">Sign in</button>
+      <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
     </div>
   </section>
 
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Sign up</h2>
+        <span class="close-modal" id="close-signup-btn">&times;</span>
+      </div>
+      <form id="signup-form" class="modal-form" autocomplete="on">
+        <div class="modal-form-group">
+          <label for="signup-username">Username</label>
+          <input type="text" id="signup-username" placeholder="Choose a username" required />
+        </div>
+        <div class="modal-form-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" required />
+        </div>
+        <div class="modal-form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="••••••••" required />
+        </div>
+        <div id="signup-error" style="color:#d33; font-size:13px; min-height:18px;"></div>
+        <div class="modal-actions">
+          <button type="button" id="cancel-signup">Cancel</button>
+          <button type="submit" id="submit-signup">Sign up</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- THE ONLY SCRIPT: Supabase + App -->
+  <script src="auth.js"></script>
   <script type="module">
     // ====== CONFIG ======
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -829,12 +860,57 @@
       });
     }
 
+    function wireSignupModal() {
+      const showSignupBtn = $('#show-signup');
+      const signupModal = $('#signup-modal');
+      const closeSignupBtn = $('#close-signup-btn');
+      const cancelSignupBtn = $('#cancel-signup');
+      const signupForm = $('#signup-form');
+      const signupError = $('#signup-error');
+
+      showSignupBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        signupModal?.classList.add('active');
+      });
+
+      closeSignupBtn?.addEventListener('click', () => signupModal?.classList.remove('active'));
+      cancelSignupBtn?.addEventListener('click', () => signupModal?.classList.remove('active'));
+      signupModal?.addEventListener('click', (e) => {
+        if (e.target === signupModal) signupModal.classList.remove('active');
+      });
+
+      signupForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = $('#signup-username').value.trim();
+        const email = $('#signup-email').value.trim();
+        const password = $('#signup-password').value;
+
+        try {
+          signupError.textContent = '';
+          const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password }),
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error);
+          alert('Sign-up successful! Please sign in.');
+          signupModal.classList.remove('active');
+          openLoginModal();
+        } catch (err) {
+          signupError.textContent = err.message || 'Failed to sign up';
+          console.error('Sign-up error:', err);
+        }
+      });
+    }
+
     // ====== BOOT (auth gate decides whether to render feed) ======
     document.addEventListener('DOMContentLoaded', async () => {
       wireHeaderDropdown();
       wireNav();
       wireCreatePostModal();
       wireAuthUI();
+      wireSignupModal();
       await initSidebarCurrentUser();
       await syncAuthGate();   // decides: show Guest screen OR render feed
     });
