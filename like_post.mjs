@@ -16,45 +16,25 @@ if (latestErr || !latest) {
 }
 console.log('🆕 Target post:', latest.id, '-', latest.caption);
 
-// 2) like it (ignore if already liked)
-const { error: likeErr } = await supabase
-  .from('post_likes')
-  .insert({ post_id: latest.id, user_id: USER_ID });
-
-if (likeErr && likeErr.code === '23505') {
-  console.log('ℹ️ Already liked by this user (skipping).');
-} else if (likeErr) {
-  console.error('❌ Like failed:', likeErr.message);
+// 2) toggle like atomically on the server and get the truth back
+const { data: toggled, error: rpcErr } = await supabase.rpc('toggle_like', { p_post_id: latest.id });
+if (rpcErr) {
+  console.error('❌ toggle_like failed:', rpcErr.message);
   process.exit(1);
 }
+const row = Array.isArray(toggled) ? toggled[0] : toggled;
+console.log(`❤️ Toggled. liked=${row.liked} | likes_count=${row.likes_count}`);
 
-// 3) count likes
-const { count, error: countErr } = await supabase
-  .from('post_likes')
-  .select('*', { count: 'exact', head: true })
-  .eq('post_id', latest.id);
-
-if (countErr) {
-  console.error('❌ Count failed:', countErr.message);
-  process.exit(1);
-}
-console.log('❤️ Total likes now:', count);
-
-// 4) sync cached counter on posts (optional but handy)
-const { error: updErr } = await supabase
-  .from('posts')
-  .update({ likes_count: count })
-  .eq('id', latest.id);
-
-if (updErr) {
-  console.error('⚠️ Counter update failed (non-fatal):', updErr.message);
-}
-
-// 5) show post summary
-const { data: summary } = await supabase
+// 3) show post summary from posts.likes_count (server truth)
+const { data: summary, error: sumErr } = await supabase
   .from('posts')
   .select('id, caption, likes_count, author:profiles(username)')
   .eq('id', latest.id)
   .single();
 
+if (sumErr) {
+  console.error('⚠️ Could not read updated post:', sumErr.message);
+  process.exit(1);
+}
 console.log('✅ Post summary:', summary);
+

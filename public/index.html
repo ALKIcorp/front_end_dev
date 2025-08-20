@@ -390,7 +390,6 @@
   </div>
 
   <!-- THE ONLY SCRIPT: Supabase + App -->
-  <script src="auth.js"></script>
   <script type="module">
     // ====== CONFIG ======
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
@@ -398,7 +397,10 @@
     // ⬇️ replace with your project values (Settings → API)
     const SUPABASE_URL = 'https://tvpmccbcotzdgoffkfsz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cG1jY2Jjb3R6ZGdvZmZrZnN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyOTg2MDcsImV4cCI6MjA3MDg3NDYwN30.aXV6rDyZIelh3jgxOA70Xej-RVeUhnnvoQKQ1gRNmQA';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true }
+    });
     window.supabase = supabase;
 
     // ====== UTIL ======
@@ -422,6 +424,7 @@
           media_url,
           media_type,
           created_at,
+          likes_count,
           author:profiles!posts_author_fkey(id, username, display_name, avatar_url)
         `)
         .order('created_at', { ascending: false });
@@ -680,91 +683,184 @@
     }
 
     // ====== LIKES (helpers) ======
-    async function hydrateLikes(posts) {
-      const { data: { user } } = await supabase.auth.getUser();
-      for (const p of posts) {
-        const postId = p.id;
-        const count = await fetchLikeCount(postId);
-        setLikeCount(postId, count);
-        if (user) {
-          const liked = await didILike(postId, user.id);
-          setLikeButtonState(postId, liked);
-        }
-      }
-      wireLikeClicks();
+    const likeLocks = new Set();         // prevent double taps per post
+    const likeWatchdogs = new Map();     // postId -> timeout id
+
+    function setButtonDisabled(postId, disabled) {
+      const btn = document.querySelector(`.like-btn[data-postid="${postId}"]`);
+      if (btn) btn.disabled = disabled;
     }
-
-    async function fetchLikeCount(postId) {
-      const { count, error } = await supabase
-        .from('post_likes') // keep your current table name
-        .select('id', { count: 'exact', head: true })
-        .eq('post_id', postId);
-      if (error) return 0;
-      return count || 0;
-    }
-
-    async function didILike(postId, userId) {
-      const { data } = await supabase
-        .from('post_likes')
-        .select('id')
-        .eq('post_id', postId)
-        .eq('user_id', userId)
-        .maybeSingle();
-      return !!data;
-    }
-
-    function wireLikeClicks() {
-      document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const postId = e.currentTarget.dataset.postid;
-          await toggleLike(postId);
-        });
-      });
-    }
-
-    async function toggleLike(postId) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return alert('Log in to like.');
-
-      const { data: existing } = await supabase
-        .from('post_likes')
-        .select('id')
-        .eq('post_id', postId)
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (existing) {
-        await supabase.from('post_likes').delete().eq('id', existing.id);
-        setLikeButtonState(postId, false);
-        setLikeCount(postId, Math.max(0, getLikeCount(postId) - 1));
-      } else {
-        await supabase.from('post_likes').insert({ post_id: postId, user_id: user.id });
-        setLikeButtonState(postId, true);
-        setLikeCount(postId, getLikeCount(postId) + 1);
-      }
-    }
-
     function setLikeButtonState(postId, liked) {
       const btn = document.querySelector(`.like-btn[data-postid="${postId}"]`);
       if (!btn) return;
       btn.textContent = liked ? '♥ Liked' : '♡ Like';
       btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
     }
-
     function setLikeCount(postId, n) {
       const span = document.querySelector(`.like-count[data-postid="${postId}"]`);
-      if (span) {
-        span.textContent = String(n);
-        span.setAttribute('data-count', String(n));
+      if (!span) return;
+      span.textContent = String(n);
+      span.dataset.count = String(n);
+    }
+    function getLikeCount(postId) {
+      const span = document.querySelector(`.like-count[data-postid="${postId}"]`);
+      return Number(span?.dataset.count || '0');
+    }
+
+    async function hydrateLikes(posts) {
+      for (const p of posts) {
+        setLikeCount(p.id, Number(p.likes_count) || 0);
+        let liked = false;
+        try {
+          const { data } = await supabase.rpc('did_i_like', { p_post_id: p.id });
+          liked = !!(Array.isArray(data) ? data[0] : data);
+        } catch {}
+        setLikeButtonState(p.id, liked);
+      }
+      wireLikeClicks();
+    }
+
+    // One-time event delegation
+    let likeClicksWired = false;
+    function wireLikeClicks() {
+      if (likeClicksWired) return;
+      likeClicksWired = true;
+      document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.like-btn');
+        if (!btn) return;
+        const postId = btn.dataset.postid;
+        await toggleLike(postId);
+      });
+    }
+
+    // OPTIMISTIC TOGGLE + SERVER RECONCILE
+    async function toggleLike(postId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { alert('Log in to like.'); return; }
+      if (likeLocks.has(postId)) return;
+
+      const wasLiked = (document.querySelector(`.like-btn[data-postid="${postId}"]`)?.getAttribute('aria-pressed') === 'true');
+
+      likeLocks.add(postId);
+      setButtonDisabled(postId, true);
+
+      // optimistic UI
+      setLikeButtonState(postId, !wasLiked);
+      setLikeCount(postId, getLikeCount(postId) + (wasLiked ? -1 : +1));
+
+      // watchdog so nothing stays disabled
+      likeWatchdogs.set(postId, setTimeout(() => {
+        setButtonDisabled(postId, false);
+        likeLocks.delete(postId);
+      }, 8000));
+
+      try {
+        const { data, error } = await supabase.rpc('toggle_like', { p_post_id: postId });
+        if (error) throw error;
+        const row = Array.isArray(data) ? data[0] : data;
+        // reconcile with server truth
+        setLikeButtonState(postId, !!row?.liked);
+        setLikeCount(postId, Number(row?.likes_count) || 0);
+      } catch (err) {
+        // If the error is from an abort (rare now), keep the optimistic UI.
+        if (!(err && err.name === 'AbortError')) {
+          // Real error: revert optimistic change
+          setLikeButtonState(postId, wasLiked);
+          setLikeCount(postId, getLikeCount(postId) + (wasLiked ? +1 : -1));
+        }
+        console.error('toggle_like failed:', err);
+      } finally {
+        clearTimeout(likeWatchdogs.get(postId));
+        likeWatchdogs.delete(postId);
+        setButtonDisabled(postId, false);
+        likeLocks.delete(postId);
       }
     }
 
-    function getLikeCount(postId) {
-      const span = document.querySelector(`.like-count[data-postid="${postId}"]`);
-      return Number(span?.getAttribute('data-count') || '0');
+    // Rehydrate one post (used on resume/focus)
+    async function rehydrateOneLike(postId) {
+      try {
+        const [{ data: likedData }, { data: postRow }] = await Promise.all([
+          supabase.rpc('did_i_like', { p_post_id: postId }),
+          supabase.from('posts').select('likes_count').eq('id', postId).single()
+        ]);
+        const liked = !!(Array.isArray(likedData) ? likedData[0] : likedData);
+        setLikeButtonState(postId, liked);
+        setLikeCount(postId, Number(postRow?.likes_count) || 0);
+      } catch (e) {
+        console.warn('rehydrateOneLike failed', e);
+      }
+    }
+    function resyncLikesForVisiblePosts() {
+      const ids = [...document.querySelectorAll('.post-actions[data-postid]')].map(el => el.dataset.postid);
+      ids.forEach(rehydrateOneLike);
     }
 
-    // ====== AUTH MODAL HELPERS (additions) ======
+    // ✅ Replace: only refresh on visible, never abort on hide
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        document.querySelectorAll('.like-btn[disabled]').forEach(btn => (btn.disabled = false));
+        resyncLikesForVisiblePosts();
+      }
+    });
+
+    // ✅ Replace: on pagehide, just ensure no stuck buttons
+    window.addEventListener('pagehide', () => {
+      document.querySelectorAll('.like-btn[disabled]').forEach(btn => (btn.disabled = false));
+    });
+
+    // ====== REALTIME RECONCILIATION (posts.likes_count) ======
+    let likesRtChannel = null;
+    async function startLikesRealtime() {
+      if (likesRtChannel) await supabase.removeChannel(likesRtChannel);
+      likesRtChannel = supabase
+        .channel('rt-posts-likes')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts' }, (payload) => {
+          const pid = payload.new?.id;
+          const count = Number(payload.new?.likes_count ?? 0);
+          const el = document.querySelector(`.like-count[data-postid="${pid}"]`);
+          if (el) {
+            el.textContent = String(count);
+            el.setAttribute('data-count', String(count));
+          }
+        })
+        .subscribe();
+    }
+    async function stopLikesRealtime() {
+      if (likesRtChannel) await supabase.removeChannel(likesRtChannel);
+      likesRtChannel = null;
+    }
+
+    // ====== LIKERS LIST (click the count) ======
+    async function fetchLikers(postId, from = 0, to = 29) {
+      const { data, error } = await supabase
+        .from('post_likes')
+        .select(`
+          created_at,
+          user:profiles ( id, username, display_name, avatar_url )
+        `)
+        .eq('post_id', postId)
+        .order('created_at', { ascending: false })
+        .range(from, to);
+      if (error) throw error;
+      return data || [];
+    }
+
+    function wireOpenLikers() {
+      document.body.addEventListener('click', async (e) => {
+        const el = e.target.closest('.like-count');
+        if (!el) return;
+        const postId = el.dataset.postid;
+        try {
+          const likers = await fetchLikers(postId);
+          alert(`Likes:\n\n` + likers.map(x => '@' + (x.user?.username || 'unknown')).join('\n'));
+        } catch (err) {
+          console.error('Failed to load likers', err);
+        }
+      });
+    }
+
+    // ====== AUTH MODAL HELPERS ======
     function openLoginModal() { $('#login-modal')?.classList.add('active'); }
     function closeLoginModal() { $('#login-modal')?.classList.remove('active'); }
 
@@ -790,19 +886,10 @@
       const page = document.querySelector('.page-container');
       if (page) page.style.display = 'flex';
     }
-    async function syncAuthGate() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        hideGuestLogin();
-        await renderHomePage();   // Render feed for logged-in users
-      } else {
-        showGuestLogin();         // Don’t render the feed when logged out
-      }
-    }
 
-    // ====== AUTH UI WIRING (robust + fixes submit) ======
+    // ====== AUTH UI WIRING ======
     function wireAuthUI() {
-      // open login modal from sidebar Switch (delegation = works after re-renders)
+      // open login modal from sidebar Switch
       document.body.addEventListener('click', (e) => {
         const switchBtn = e.target.closest('#switch-account-btn');
         if (switchBtn) { e.preventDefault(); openLoginModal(); }
@@ -836,9 +923,7 @@
         try {
           errBox.textContent = '';
           await signIn(email, password);
-          closeLoginModal();
-          await initSidebarCurrentUser();
-          await syncAuthGate();   // refresh which screen is shown
+          closeLoginModal(); // onAuthStateChange will render the feed
         } catch (err) {
           errBox.textContent = err?.message || 'Failed to sign in';
           console.error('Sign-in error:', err);
@@ -848,15 +933,7 @@
       // logout link
       $('#logout-link')?.addEventListener('click', async (e) => {
         e.preventDefault();
-        await signOut();
-        await initSidebarCurrentUser();
-        await syncAuthGate();     // show guest screen again
-      });
-
-      // session changes (another tab)
-      supabase.auth.onAuthStateChange(async () => {
-        await initSidebarCurrentUser();
-        await syncAuthGate();
+        await signOut(); // onAuthStateChange will show guest screen
       });
     }
 
@@ -887,6 +964,7 @@
 
         try {
           signupError.textContent = '';
+          // NOTE: This endpoint is a placeholder. It will 404 until you add a backend.
           const response = await fetch('/api/auth/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -904,15 +982,35 @@
       });
     }
 
-    // ====== BOOT (auth gate decides whether to render feed) ======
+    // ====== BOOT (robust refresh handling) ======
+    async function updateUIFromSession(session) {
+      await initSidebarCurrentUser();
+      if (session?.user) {
+        hideGuestLogin();
+        await renderHomePage();
+      } else {
+        showGuestLogin();
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       wireHeaderDropdown();
       wireNav();
       wireCreatePostModal();
       wireAuthUI();
       wireSignupModal();
-      await initSidebarCurrentUser();
-      await syncAuthGate();   // decides: show Guest screen OR render feed
+      wireOpenLikers();
+
+      const { data: { session} } = await supabase.auth.getSession();
+      await updateUIFromSession(session);
+
+      if (session?.user) { await startLikesRealtime(); }
+
+      supabase.auth.onAuthStateChange(async (_event, session) => {
+        await updateUIFromSession(session);
+        if (session?.user) { await startLikesRealtime(); }
+        else { await stopLikesRealtime(); }
+      });
     });
   </script>
 </body>

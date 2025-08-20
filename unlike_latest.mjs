@@ -16,23 +16,15 @@ if (latestErr || !latest) {
 }
 console.log('🆕 Target post:', latest.id, '-', latest.caption, '| likes_count:', latest.likes_count);
 
-// 2) delete your like for that post (if it exists)
-const { data: delRows, error: delErr } = await supabase
-  .from('post_likes')
-  .delete()
-  .eq('post_id', latest.id)
-  .eq('user_id', USER_ID)
-  .select(); // return deleted rows so we know if anything changed
-
-if (delErr) {
-  console.error('❌ Unlike failed:', delErr.message);
+// 2) toggle like atomically via RPC (this will unlike if you already liked)
+const { data: toggled, error: rpcErr } = await supabase.rpc('toggle_like', { p_post_id: latest.id });
+if (rpcErr) {
+  console.error('❌ toggle_like failed:', rpcErr.message);
   process.exit(1);
 }
-if (!delRows || delRows.length === 0) {
-  console.log('ℹ️ There was no like from this user to remove.');
-} else {
-  console.log('🗑 Removed like rows:', delRows.length);
-}
+const row = Array.isArray(toggled) ? toggled[0] : toggled;
+console.log(`🔁 Toggled. liked=${row.liked} | likes_count=${row.likes_count}`);
+
 
 // 3) read the post again to see the trigger-updated counter
 const { data: summary, error: sumErr } = await supabase

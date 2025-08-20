@@ -27,6 +27,7 @@ const { data: feed, error: pErr } = await supabase
     caption,
     media_url,
     created_at,
+    likes_count,
     author:profiles!posts_author_fkey (
       id, username, avatar_url
     )
@@ -34,6 +35,7 @@ const { data: feed, error: pErr } = await supabase
   .in('author', authorIds)
   .order('created_at', { ascending: false })
   .limit(10);
+
 
 if (pErr) {
   console.error('❌ Could not read posts:', pErr.message);
