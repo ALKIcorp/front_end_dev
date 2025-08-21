@@ -1,1017 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OnlyCats</title>
-  <style>
-    /*
-    ====================================================
-    CSS STYLES
-    ====================================================
-    */
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #fafafa;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-    }
-
-    .page-container {
-      width: 100%;
-      max-width: 935px;
-      padding-top: 54px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .main-content {
-      width: 100%;
-      max-width: 614px;
-      padding-right: 28px;
-      box-sizing: border-box;
-    }
-
-    .right-sidebar {
-      width: 100%;
-      max-width: 293px;
-      padding-left: 28px;
-      box-sizing: border-box;
-    }
-
-    .header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background-color: #fff;
-      border-bottom: 1px solid #dbdbdb;
-      padding: 0 20px;
-      box-sizing: border-box;
-      z-index: 1000;
-      display: flex;
-      justify-content: center;
-    }
-
-    .header-content {
-      width: 100%;
-      max-width: 935px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 54px;
-    }
-
-    .header-logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: #262626;
-      text-decoration: none;
-    }
-
-    .search-bar {
-      width: 215px;
-      height: 28px;
-      border: 1px solid #dbdbdb;
-      background-color: #fafafa;
-      border-radius: 3px;
-      padding: 0 10px;
-    }
-
-    .nav-icons {
-      display: flex;
-      align-items: center;
-      gap: 22px;
-    }
-
-    .nav-icons a {
-      font-size: 14px;
-      font-weight: 600;
-      color: #262626;
-      text-decoration: none;
-      padding: 0 8px;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    #create-post-btn {
-      background-color: #0095f6;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.2s;
-    }
-    #create-post-btn:hover { background-color: #0081e7; }
-
-    .profile-dropdown-container { position: relative; }
-
-    .nav-icons .profile-pic {
-      width: 28px; height: 28px; border-radius: 50%; border: 1px solid #dbdbdb; cursor: pointer;
-    }
-
-    .dropdown-menu {
-      position: absolute; top: calc(100% + 8px); right: 0; background-color: #fff;
-      border: 1px solid #dbdbdb; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 8px 0; min-width: 150px; z-index: 1500;
-      opacity: 0; visibility: hidden; transform: translateY(-10px);
-      transition: opacity .2s, visibility .2s, transform .2s;
-    }
-    .dropdown-menu.active { opacity:1; visibility:visible; transform: translateY(0); }
-    .dropdown-menu a {
-      display:block; padding:10px 16px; font-size:14px; color:#262626; text-decoration:none;
-      transition: background-color .2s;
-    }
-    .dropdown-menu a:hover { background:#fafafa; }
-
-    /* Posts */
-    .post {
-      background: #fff; border: 1px solid #dbdbdb; border-radius: 3px; margin-bottom: 24px;
-    }
-    .text-only-post { margin-bottom: 12px; }
-
-    .post-header { display:flex; align-items:center; padding:16px; }
-    .post-header .user-avatar { width:32px; height:32px; border-radius:50%; margin-right:12px; }
-    .post-header .user-name { font-weight:600; color:#262626; text-decoration:none; cursor:pointer; }
-
-    .post-image-container { width:100%; }
-    .post-image { width:100%; display:block; }
-
-    .post-caption { padding:16px; }
-    .text-only-post .post-caption { padding-top:0; }
-    .text-only-post .post-caption p { margin:0; }
-
-    .post-actions { padding: 0 16px 16px 16px; display:flex; gap:10px; align-items:center; }
-    .post-actions .like-btn { cursor:pointer; }
-
-    .margin-between-posts { height:24px; display:block; }
-    #posts-feed { margin-top: 24px; }
-
-    /* Right sidebar */
-    .sidebar-container { position: fixed; top: 100px; width: 293px; }
-    .sidebar-profile { display:flex; align-items:center; margin-bottom:12px; }
-    .sidebar-profile .profile-pic { width:56px; height:56px; border-radius:50%; margin-right:12px; }
-    .sidebar-profile-info { flex-grow:1; }
-    .sidebar-profile-info .username { font-weight:600; font-size:14px; color:#262626; }
-    .sidebar-profile-info .name { font-size:14px; color:#8e8e8e; margin-top:4px; }
-    .sidebar-profile .switch-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
-
-    .suggestions-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-    .suggestions-header span { font-weight:600; color:#8e8e8e; font-size:14px;}
-    .suggestions-header a { color:#262626; font-size:12px; font-weight:600; text-decoration:none; }
-
-    .suggestion-item { display:flex; align-items:center; margin-bottom:12px; }
-    .suggestion-item .suggestion-profile-pic { width:32px; height:32px; border-radius:50%; margin-right:12px; }
-    .suggestion-item-info { flex-grow:1; }
-    .suggestion-item-info .username { font-weight:600; font-size:14px; color:#262626; }
-    .suggestion-item-info .follow-info { font-size:12px; color:#8e8e8e; margin-top:2px; }
-    .suggestion-item .follow-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
-
-    .sidebar-footer { margin-top:24px; font-size:11px; color:#c7c7c7; }
-    .sidebar-footer a { color:#c7c7c7; text-decoration:none; }
-
-    /* Modal (shared styles for Create & Login) */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-      display:flex; justify-content:center; align-items:center; z-index:2000;
-      opacity:0; visibility:hidden; transition: visibility 0s, opacity .3s linear;
-    }
-    .modal-overlay.active { visibility:visible; opacity:1; }
-    .modal-content {
-      background:#fff; border-radius:12px; width:90%; max-width:500px; padding:24px; box-sizing:border-box; position:relative;
-    }
-    .modal-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; border-bottom:1px solid #dbdbdb; margin-bottom:16px; }
-    .modal-header h2 { margin:0; font-size:20px; font-weight:600; }
-    .close-modal { font-size:24px; cursor:pointer; color:#8e8e8e; }
-    .modal-form { display:flex; flex-direction:column; gap:16px; }
-    .modal-form-group { display:flex; flex-direction:column; }
-    .modal-form-group label { font-weight:600; margin-bottom:8px; }
-    .modal-form-group input, .modal-form-group textarea { border:1px solid #dbdbdb; border-radius:4px; padding:8px; font-size:14px; }
-    .modal-form-group textarea { resize:vertical; height:100px; }
-    .post-type-buttons { display:flex; gap:10px; margin-bottom:16px; }
-    .post-type-buttons button { background:#efefef; border:1px solid #dbdbdb; border-radius:8px; padding:8px 16px; cursor:pointer; font-weight:600; color:#262626; transition: background-color .2s; }
-    .post-type-buttons button.active { background:#0095f6; color:#fff; border-color:#0095f6; }
-    .modal-actions { display:flex; justify-content:flex-end; gap:10px; padding-top:16px; border-top:1px solid #dbdbdb; }
-    .modal-actions button { padding:8px 16px; border:none; border-radius:4px; font-weight:600; cursor:pointer; }
-    #submit-post { background:#0095f6; color:#fff; }
-    #cancel-post { background:#efefef; color:#262626; }
-
-    /* Profile page */
-    .profile-container { width:100%; padding:24px 0; box-sizing:border-box; }
-    .profile-header { display:flex; align-items:center; justify-content:center; padding-bottom:44px; border-bottom:1px solid #dbdbdb; margin-bottom:44px; }
-    .profile-header .profile-pic { width:150px; height:150px; border-radius:50%; margin-right:80px; }
-    .profile-info { display:flex; flex-direction:column; justify-content:center; }
-    .profile-username { font-size:28px; font-weight:300; margin-bottom:12px; }
-    .profile-post-count { font-size:16px; color:#8e8e8e; margin-bottom:8px; }
-    .profile-full-name { font-size:16px; font-weight:600; }
-
-    .profile-post-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:28px; }
-    .profile-post-item { position:relative; padding-bottom:100%; overflow:hidden; cursor:pointer; }
-    .profile-post-item img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: transform .2s; }
-    .profile-post-item img:hover { transform: scale(1.05); }
-
-    #content-area { width:100%; }
-
-    /* ====== AUTH GATE & BUTTONS ====== */
-    #guest-login-screen {
-      position: fixed; inset: 0; display: none;
-      align-items: center; justify-content: center;
-      background: #fafafa; z-index: 1500;
-    }
-    #guest-login-card {
-      background:#fff; border:1px solid #dbdbdb; border-radius:12px;
-      width:90%; max-width:420px; padding:24px; text-align:center;
-      box-shadow:0 10px 30px rgba(0,0,0,0.12);
-    }
-    #guest-login-title { margin:0 0 8px; font-size:22px; font-weight:700; }
-    #guest-login-sub   { margin:0 0 16px; color:#666; font-size:14px; }
-
-    #guest-signin-btn, #submit-login {
-      background:#0095f6; color:#fff;
-      padding:10px 16px; border:0; border-radius:8px;
-      font-weight:600; cursor:pointer;
-    }
-    #guest-signin-btn:hover, #submit-login:hover { background:#0081e7; }
-  </style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OnlyCats</title>
+<link href="css/styles.css" rel="stylesheet"/>
 </head>
 <body>
-  <header class="header">
-    <div class="header-content">
-      <a href="#" class="header-logo" id="home-link">OnlyCats</a>
-      <input type="text" class="search-bar" placeholder="Search"/>
-      <div class="nav-icons">
-        <a href="#" id="home-btn">Home</a>
-        <a href="#" id="create-post-btn">Create</a>
-        <a href="#">Messages</a>
-        <div class="profile-dropdown-container">
-          <a href="#" id="profile-pic-btn"><img src="" alt="Profile" class="profile-pic" id="header-profile-pic"/></a>
-          <div id="profile-dropdown-menu" class="dropdown-menu">
-            <a href="#" id="my-profile-link">Profile</a>
-            <a href="#">Settings</a>
-            <a href="#" id="logout-link">Log out</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <div class="page-container">
-    <div class="main-content">
-      <div id="content-area"></div>
-    </div>
-
-    <div class="right-sidebar">
-      <div class="sidebar-container">
-        <div class="sidebar-profile">
-          <img id="current-user-pfp" src="" alt="Profile" class="profile-pic"/>
-          <div class="sidebar-profile-info">
-            <div id="current-user-username" class="username"></div>
-            <div id="current-user-fullname" class="name"></div>
-          </div>
-          <div class="switch-button" id="switch-account-btn">Switch</div>
-        </div>
-
-        <div class="suggestions-header">
-          <span>Suggestions For You</span>
-          <a href="#">See All</a>
-        </div>
-
-        <div id="suggestions-list" class="suggestions-list"></div>
-
-        <div class="sidebar-footer">
-          <p>
-            <a href="#">About</a> · <a href="#">Help</a> · <a href="#">Press</a> · <a href="#">API</a> · <a href="#">Jobs</a> · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Locations</a> · <a href="#">Top Accounts</a> · <a href="#">Hashtags</a> · <a href="#">Language</a>
-          </p>
-          <p>© 2025 ONLYCATS FROM FACEBOOK</p>
+<header class="header">
+  <div class="header-content">
+    <a class="header-logo" href="#" id="home-link">OnlyCats</a>
+    <input class="search-bar" placeholder="Search" type="text"/>
+    <div class="nav-icons">
+      <a href="#" id="home-btn">Home</a>
+      <a href="#" id="profile-btn">Profile</a>
+      <a href="#" id="create-post-btn">Create</a>
+      <div class="dropdown">
+        <button id="user-menu-btn">Account ▾</button>
+        <div class="dropdown-menu" id="user-dropdown">
+          <a href="#" id="switch-account-btn">Switch</a>
+          <a href="#" id="signout-btn">Sign out</a>
         </div>
       </div>
     </div>
   </div>
+</header>
 
-  <!-- Create Post Modal -->
-  <div id="create-post-modal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Create a new post</h2>
-        <span class="close-modal" id="close-modal-btn">&times;</span>
-      </div>
-      <form id="create-post-form" class="modal-form">
-        <div class="post-type-buttons">
-          <button type="button" class="post-type-btn active" data-type="post">Post (Image + Text)</button>
-          <button type="button" class="post-type-btn" data-type="text-only">Text Only</button>
-        </div>
-
-        <div class="modal-form-group" id="image-url-group">
-          <label for="post-image-url">Image URL</label>
-          <input type="text" id="post-image-url" placeholder="Paste an image URL here..."/>
-        </div>
-
-        <div class="modal-form-group">
-          <label for="post-caption">Caption</label>
-          <textarea id="post-caption" placeholder="Write a caption..."></textarea>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" id="cancel-post">Cancel</button>
-          <button type="submit" id="submit-post">Share</button>
-        </div>
-      </form>
+<main class="main-container">
+  <div class="feed-container">
+    <div id="content-area"></div>
+  </div>
+  <div class="right-sidebar">
+    <div class="current-user-card" id="current-user-card">
+      <!-- filled by initSidebarCurrentUser -->
     </div>
   </div>
+</main>
 
-  <!-- Login Modal -->
-  <div id="login-modal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Sign in</h2>
-        <span class="close-modal" id="close-login-btn">&times;</span>
+<!-- Create Post Modal -->
+<div id="create-post-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create a new post</h2>
+      <span class="close-modal" id="close-modal-btn">&times;</span>
+    </div>
+    <form id="create-post-form" class="modal-form">
+      <div class="post-type-buttons">
+        <button type="button" data-type="image" class="active">Image</button>
+        <button type="button" data-type="text">Text</button>
       </div>
-      <form id="login-form" class="modal-form" autocomplete="on">
-        <div class="modal-form-group">
-          <label for="login-email">Email</label>
-          <input type="email" id="login-email" placeholder="you@example.com" required />
-        </div>
-        <div class="modal-form-group">
-          <label for="login-password">Password</label>
-          <input type="password" id="login-password" placeholder="••••••••" required />
-        </div>
-        <div id="login-error" style="color:#d33; font-size:13px; min-height:18px;"></div>
-        <div class="modal-actions">
-          <button type="button" id="cancel-login">Cancel</button>
-          <button type="submit" id="submit-login">Sign in</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Guest Login Screen (shown when no user is logged in) -->
-  <section id="guest-login-screen" aria-hidden="true">
-    <div id="guest-login-card">
-      <h2 id="guest-login-title">Welcome to OnlyCats</h2>
-      <p id="guest-login-sub">Sign in to post, like, and follow.</p>
-      <button id="guest-signin-btn">Sign in</button>
-      <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
-    </div>
-  </section>
-
-  <!-- Signup Modal -->
-  <div id="signup-modal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Sign up</h2>
-        <span class="close-modal" id="close-signup-btn">&times;</span>
+      <div class="modal-form-group" id="image-input-group">
+        <label for="post-image">Image URL</label>
+        <input type="url" id="post-image" placeholder="https://example.com/cat.jpg"/>
       </div>
-      <form id="signup-form" class="modal-form" autocomplete="on">
-        <div class="modal-form-group">
-          <label for="signup-username">Username</label>
-          <input type="text" id="signup-username" placeholder="Choose a username" required />
-        </div>
-        <div class="modal-form-group">
-          <label for="signup-email">Email</label>
-          <input type="email" id="signup-email" placeholder="you@example.com" required />
-        </div>
-        <div class="modal-form-group">
-          <label for="signup-password">Password</label>
-          <input type="password" id="signup-password" placeholder="••••••••" required />
-        </div>
-        <div id="signup-error" style="color:#d33; font-size:13px; min-height:18px;"></div>
-        <div class="modal-actions">
-          <button type="button" id="cancel-signup">Cancel</button>
-          <button type="submit" id="submit-signup">Sign up</button>
-        </div>
-      </form>
-    </div>
+      <div class="modal-form-group" id="text-input-group" style="display:none;">
+        <label for="post-text">Text content</label>
+        <input type="text" id="post-text" placeholder="Write something..."/>
+      </div>
+      <div class="modal-form-group">
+        <label for="post-caption">Caption</label>
+        <textarea id="post-caption" placeholder="Write a caption..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-post" type="button">Cancel</button>
+        <button id="submit-post" type="submit">Share</button>
+      </div>
+    </form>
   </div>
-
-  <!-- THE ONLY SCRIPT: Supabase + App -->
-  <script type="module">
-    // ====== CONFIG ======
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-    // ⬇️ replace with your project values (Settings → API)
-    const SUPABASE_URL = 'https://tvpmccbcotzdgoffkfsz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cG1jY2Jjb3R6ZGdvZmZrZnN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyOTg2MDcsImV4cCI6MjA3MDg3NDYwN30.aXV6rDyZIelh3jgxOA70Xej-RVeUhnnvoQKQ1gRNmQA';
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true }
-    });
-    window.supabase = supabase;
-
-    // ====== UTIL ======
-    const $  = (sel) => document.querySelector(sel);
-    const $all = (sel) => [...document.querySelectorAll(sel)];
-    const PLACEHOLDER_AVATAR = 'https://via.placeholder.com/150/efefef/777?text=User';
-
-    function escapeHtml(s) {
-      return (s || '').replace(/[&<>"']/g, (m) => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-      }[m]));
-    }
-
-    // ====== DATA FETCHERS ======
-    async function fetchPosts() {
-      const { data, error } = await supabase
-        .from('posts')
-        .select(`
-          id,
-          caption,
-          media_url,
-          media_type,
-          created_at,
-          likes_count,
-          author:profiles!posts_author_fkey(id, username, display_name, avatar_url)
-        `)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    }
-
-    async function fetchProfileByUsername(username) {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, display_name, avatar_url')
-        .eq('username', username)
-        .maybeSingle();
-      if (error) throw error;
-      return data || null;
-    }
-
-    async function fetchPostsByAuthorId(authorId) {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('id, caption, media_url, media_type, created_at')
-        .eq('author', authorId)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    }
-
-    async function getCurrentUserAndProfile() {
-      const { data: me } = await supabase.auth.getUser();
-      const user = me?.user || null;
-      if (!user) return { user: null, profile: null };
-
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('id, username, display_name, avatar_url')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      return { user, profile: prof || null };
-    }
-
-    // ====== RENDER HELPERS ======
-    function postCardHTML({ id, caption, media_url, media_type, created_at, author }) {
-      const avatar = author?.avatar_url || PLACEHOLDER_AVATAR;
-      const username = author?.username || 'unknown';
-      const isImage = media_type === 'image' && !!media_url;
-
-      const postHeader = `
-        <div class="post-header">
-          <img src="${avatar}" alt="${username} avatar" class="user-avatar">
-          <span class="user-name" data-username="${username}">${username}</span>
-        </div>
-      `;
-
-      const imageBlock = isImage
-        ? `<div class="post-image-container"><img src="${media_url}" alt="Post Image" class="post-image"></div>`
-        : '';
-
-      const postClass = isImage ? 'post' : 'post text-only-post';
-      return `
-        <div class="${postClass}" data-postid="${id}">
-          ${postHeader}
-          ${imageBlock}
-
-          <div class="post-caption">
-            <p><strong>${username}</strong> ${escapeHtml(caption || '')}</p>
-          </div>
-
-          <div class="post-actions" data-postid="${id}">
-            <button class="like-btn" data-postid="${id}" aria-pressed="false">♡ Like</button>
-            <span class="like-count" data-postid="${id}">0</span>
-          </div>
-        </div>
-        <div class="margin-between-posts"></div>
-      `;
-    }
-
-    function profileGridHTML(posts) {
-      if (!posts.length) {
-        return '<div class="no-posts-message">This user has not posted yet.</div>';
-      }
-      return posts.map(p => `
-        <div class="profile-post-item">
-          <img src="${p.media_type === 'image' && p.media_url ? p.media_url : 'https://via.placeholder.com/300x300/e0e0e0/000?text=TEXT+POST'}" alt="Post Image">
-        </div>
-      `).join('');
-    }
-
-    // ====== RENDER SCREENS ======
-    async function renderHomePage() {
-      const contentArea = $('#content-area');
-      contentArea.innerHTML = `<div id="posts-feed"></div>`;
-      try {
-        const feedPosts = await fetchPosts();
-        $('#posts-feed').innerHTML = feedPosts.map(postCardHTML).join('');
-        attachUsernameClicks();
-        await hydrateLikes(feedPosts);
-      } catch (e) {
-        $('#posts-feed').innerHTML = `<div class="no-posts-message">Failed to load posts: ${escapeHtml(e.message)}</div>`;
-      }
-    }
-
-    async function renderProfilePageByUsername(username) {
-      const contentArea = $('#content-area');
-      contentArea.innerHTML = `<div class="no-posts-message">Loading profile…</div>`;
-      try {
-        const profile = await fetchProfileByUsername(username);
-        if (!profile) {
-          contentArea.innerHTML = `<div class="no-posts-message">User not found.</div>`;
-          return;
-        }
-        const posts = await fetchPostsByAuthorId(profile.id);
-        const headerHtml = `
-          <div class="profile-container">
-            <div class="profile-header">
-              <img src="${profile.avatar_url || PLACEHOLDER_AVATAR}" alt="${profile.display_name || profile.username}" class="profile-pic">
-              <div class="profile-info">
-                <h1 class="profile-username">${profile.username}</h1>
-                <div class="profile-post-count">${posts.length} posts</div>
-                <div class="profile-full-name">${escapeHtml(profile.display_name || '')}</div>
-              </div>
-            </div>
-            <div class="profile-post-grid">
-              ${profileGridHTML(posts)}
-            </div>
-          </div>
-        `;
-        contentArea.innerHTML = headerHtml;
-      } catch (e) {
-        contentArea.innerHTML = `<div class="no-posts-message">Failed to load profile: ${escapeHtml(e.message)}</div>`;
-      }
-    }
-
-    // ====== UI WIRING ======
-    function attachUsernameClicks() {
-      $all('.user-name').forEach(el => {
-        el.addEventListener('click', (e) => {
-          const uname = e.currentTarget.dataset.username;
-          if (uname) renderProfilePageByUsername(uname);
-        });
-      });
-    }
-
-    function wireHeaderDropdown() {
-      const profilePicBtn = $('#profile-pic-btn');
-      const profileDropdownMenu = $('#profile-dropdown-menu');
-
-      profilePicBtn?.addEventListener('click', (e) => {
-        e.preventDefault(); e.stopPropagation();
-        profileDropdownMenu?.classList.toggle('active');
-      });
-      document.addEventListener('click', (e) => {
-        if (!profileDropdownMenu?.contains(e.target) && !profilePicBtn?.contains(e.target)) {
-          profileDropdownMenu?.classList.remove('active');
-        }
-      });
-      profileDropdownMenu?.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => profileDropdownMenu?.classList.remove('active'));
-      });
-    }
-
-    function wireNav() {
-      $('#home-link')?.addEventListener('click', (e) => { e.preventDefault(); renderHomePage(); });
-      $('#home-btn')?.addEventListener('click', (e) => { e.preventDefault(); renderHomePage(); });
-      $('#my-profile-link')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const { profile } = await getCurrentUserAndProfile();
-        if (!profile?.username) { alert('Log in first to view your profile.'); return; }
-        renderProfilePageByUsername(profile.username);
-      });
-    }
-
-    function wireCreatePostModal() {
-      const createPostBtn = $('#create-post-btn');
-      const createPostModal = $('#create-post-modal');
-      const closeModalBtn = $('#close-modal-btn');
-      const cancelPostBtn = $('#cancel-post');
-      const createPostForm = $('#create-post-form');
-      const postTypeBtns = $all('.post-type-btn');
-      const postImageUrlInput = $('#post-image-url');
-      const postCaptionTextarea = $('#post-caption');
-      const imageUrlGroup = $('#image-url-group');
-
-      let currentPostType = 'post';
-
-      createPostBtn?.addEventListener('click', () => createPostModal?.classList.add('active'));
-      closeModalBtn?.addEventListener('click', () => createPostModal?.classList.remove('active'));
-      cancelPostBtn?.addEventListener('click', () => {
-        postImageUrlInput.value = '';
-        postCaptionTextarea.value = '';
-        createPostModal?.classList.remove('active');
-      });
-      createPostModal?.addEventListener('click', (e) => {
-        if (e.target === createPostModal) createPostModal.classList.remove('active');
-      });
-
-      postTypeBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          postTypeBtns.forEach(b => b.classList.remove('active'));
-          e.currentTarget.classList.add('active');
-          currentPostType = e.currentTarget.dataset.type;
-          imageUrlGroup.style.display = currentPostType === 'post' ? 'flex' : 'none';
-        });
-      });
-
-      createPostForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const caption = postCaptionTextarea.value.trim();
-        const imageUrl = postImageUrlInput.value.trim();
-
-        if (currentPostType === 'text-only' && !caption) {
-          alert('Caption cannot be empty for a text-only post.');
-          return;
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { alert('Please log in before posting.'); return; }
-
-        try {
-          const payload = {
-            author: user.id,
-            caption,
-            media_url: currentPostType === 'post' && imageUrl ? imageUrl : null,
-            media_type: currentPostType === 'post' && imageUrl ? 'image' : 'none',
-          };
-          const { error } = await supabase.from('posts').insert(payload);
-          if (error) throw error;
-
-          await renderHomePage();
-          createPostForm.reset();
-          createPostModal.classList.remove('active');
-        } catch (err) {
-          alert(`Failed to create post: ${err.message}`);
-        }
-      });
-    }
-
-    async function initSidebarCurrentUser() {
-      const { profile } = await getCurrentUserAndProfile();
-      const pfpEl = $('#current-user-pfp');
-      const unameEl = $('#current-user-username');
-      const nameEl = $('#current-user-fullname');
-      const headerPfp = $('#header-profile-pic');
-
-      if (profile) {
-        pfpEl && (pfpEl.src = profile.avatar_url || PLACEHOLDER_AVATAR);
-        unameEl && (unameEl.textContent = profile.username || '');
-        nameEl && (nameEl.textContent = profile.display_name || '');
-        headerPfp && (headerPfp.src = profile.avatar_url || PLACEHOLDER_AVATAR);
-      } else {
-        pfpEl && (pfpEl.src = PLACEHOLDER_AVATAR);
-        unameEl && (unameEl.textContent = 'Guest');
-        nameEl && (nameEl.textContent = 'Not signed in');
-        headerPfp && (headerPfp.src = PLACEHOLDER_AVATAR);
-      }
-    }
-
-    // ====== LIKES (helpers) ======
-    const likeLocks = new Set();         // prevent double taps per post
-    const likeWatchdogs = new Map();     // postId -> timeout id
-
-    function setButtonDisabled(postId, disabled) {
-      const btn = document.querySelector(`.like-btn[data-postid="${postId}"]`);
-      if (btn) btn.disabled = disabled;
-    }
-    function setLikeButtonState(postId, liked) {
-      const btn = document.querySelector(`.like-btn[data-postid="${postId}"]`);
-      if (!btn) return;
-      btn.textContent = liked ? '♥ Liked' : '♡ Like';
-      btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
-    }
-    function setLikeCount(postId, n) {
-      const span = document.querySelector(`.like-count[data-postid="${postId}"]`);
-      if (!span) return;
-      span.textContent = String(n);
-      span.dataset.count = String(n);
-    }
-    function getLikeCount(postId) {
-      const span = document.querySelector(`.like-count[data-postid="${postId}"]`);
-      return Number(span?.dataset.count || '0');
-    }
-
-    async function hydrateLikes(posts) {
-      for (const p of posts) {
-        setLikeCount(p.id, Number(p.likes_count) || 0);
-        let liked = false;
-        try {
-          const { data } = await supabase.rpc('did_i_like', { p_post_id: p.id });
-          liked = !!(Array.isArray(data) ? data[0] : data);
-        } catch {}
-        setLikeButtonState(p.id, liked);
-      }
-      wireLikeClicks();
-    }
-
-    // One-time event delegation
-    let likeClicksWired = false;
-    function wireLikeClicks() {
-      if (likeClicksWired) return;
-      likeClicksWired = true;
-      document.addEventListener('click', async (e) => {
-        const btn = e.target.closest('.like-btn');
-        if (!btn) return;
-        const postId = btn.dataset.postid;
-        await toggleLike(postId);
-      });
-    }
-
-    // OPTIMISTIC TOGGLE + SERVER RECONCILE
-    async function toggleLike(postId) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { alert('Log in to like.'); return; }
-      if (likeLocks.has(postId)) return;
-
-      const wasLiked = (document.querySelector(`.like-btn[data-postid="${postId}"]`)?.getAttribute('aria-pressed') === 'true');
-
-      likeLocks.add(postId);
-      setButtonDisabled(postId, true);
-
-      // optimistic UI
-      setLikeButtonState(postId, !wasLiked);
-      setLikeCount(postId, getLikeCount(postId) + (wasLiked ? -1 : +1));
-
-      // watchdog so nothing stays disabled
-      likeWatchdogs.set(postId, setTimeout(() => {
-        setButtonDisabled(postId, false);
-        likeLocks.delete(postId);
-      }, 8000));
-
-      try {
-        const { data, error } = await supabase.rpc('toggle_like', { p_post_id: postId });
-        if (error) throw error;
-        const row = Array.isArray(data) ? data[0] : data;
-        // reconcile with server truth
-        setLikeButtonState(postId, !!row?.liked);
-        setLikeCount(postId, Number(row?.likes_count) || 0);
-      } catch (err) {
-        // If the error is from an abort (rare now), keep the optimistic UI.
-        if (!(err && err.name === 'AbortError')) {
-          // Real error: revert optimistic change
-          setLikeButtonState(postId, wasLiked);
-          setLikeCount(postId, getLikeCount(postId) + (wasLiked ? +1 : -1));
-        }
-        console.error('toggle_like failed:', err);
-      } finally {
-        clearTimeout(likeWatchdogs.get(postId));
-        likeWatchdogs.delete(postId);
-        setButtonDisabled(postId, false);
-        likeLocks.delete(postId);
-      }
-    }
-
-    // Rehydrate one post (used on resume/focus)
-    async function rehydrateOneLike(postId) {
-      try {
-        const [{ data: likedData }, { data: postRow }] = await Promise.all([
-          supabase.rpc('did_i_like', { p_post_id: postId }),
-          supabase.from('posts').select('likes_count').eq('id', postId).single()
-        ]);
-        const liked = !!(Array.isArray(likedData) ? likedData[0] : likedData);
-        setLikeButtonState(postId, liked);
-        setLikeCount(postId, Number(postRow?.likes_count) || 0);
-      } catch (e) {
-        console.warn('rehydrateOneLike failed', e);
-      }
-    }
-    function resyncLikesForVisiblePosts() {
-      const ids = [...document.querySelectorAll('.post-actions[data-postid]')].map(el => el.dataset.postid);
-      ids.forEach(rehydrateOneLike);
-    }
-
-    // ✅ Replace: only refresh on visible, never abort on hide
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        document.querySelectorAll('.like-btn[disabled]').forEach(btn => (btn.disabled = false));
-        resyncLikesForVisiblePosts();
-      }
-    });
-
-    // ✅ Replace: on pagehide, just ensure no stuck buttons
-    window.addEventListener('pagehide', () => {
-      document.querySelectorAll('.like-btn[disabled]').forEach(btn => (btn.disabled = false));
-    });
-
-    // ====== REALTIME RECONCILIATION (posts.likes_count) ======
-    let likesRtChannel = null;
-    async function startLikesRealtime() {
-      if (likesRtChannel) await supabase.removeChannel(likesRtChannel);
-      likesRtChannel = supabase
-        .channel('rt-posts-likes')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'posts' }, (payload) => {
-          const pid = payload.new?.id;
-          const count = Number(payload.new?.likes_count ?? 0);
-          const el = document.querySelector(`.like-count[data-postid="${pid}"]`);
-          if (el) {
-            el.textContent = String(count);
-            el.setAttribute('data-count', String(count));
-          }
-        })
-        .subscribe();
-    }
-    async function stopLikesRealtime() {
-      if (likesRtChannel) await supabase.removeChannel(likesRtChannel);
-      likesRtChannel = null;
-    }
-
-    // ====== LIKERS LIST (click the count) ======
-    async function fetchLikers(postId, from = 0, to = 29) {
-      const { data, error } = await supabase
-        .from('post_likes')
-        .select(`
-          created_at,
-          user:profiles ( id, username, display_name, avatar_url )
-        `)
-        .eq('post_id', postId)
-        .order('created_at', { ascending: false })
-        .range(from, to);
-      if (error) throw error;
-      return data || [];
-    }
-
-    function wireOpenLikers() {
-      document.body.addEventListener('click', async (e) => {
-        const el = e.target.closest('.like-count');
-        if (!el) return;
-        const postId = el.dataset.postid;
-        try {
-          const likers = await fetchLikers(postId);
-          alert(`Likes:\n\n` + likers.map(x => '@' + (x.user?.username || 'unknown')).join('\n'));
-        } catch (err) {
-          console.error('Failed to load likers', err);
-        }
-      });
-    }
-
-    // ====== AUTH MODAL HELPERS ======
-    function openLoginModal() { $('#login-modal')?.classList.add('active'); }
-    function closeLoginModal() { $('#login-modal')?.classList.remove('active'); }
-
-    async function signIn(email, password) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-    }
-    async function signOut() {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    }
-
-    // ====== AUTH GATE (show blank login screen when logged out) ======
-    function showGuestLogin() {
-      const el = $('#guest-login-screen');
-      if (el) el.style.display = 'flex';
-      const page = document.querySelector('.page-container');
-      if (page) page.style.display = 'none';
-    }
-    function hideGuestLogin() {
-      const el = $('#guest-login-screen');
-      if (el) el.style.display = 'none';
-      const page = document.querySelector('.page-container');
-      if (page) page.style.display = 'flex';
-    }
-
-    // ====== AUTH UI WIRING ======
-    function wireAuthUI() {
-      // open login modal from sidebar Switch
-      document.body.addEventListener('click', (e) => {
-        const switchBtn = e.target.closest('#switch-account-btn');
-        if (switchBtn) { e.preventDefault(); openLoginModal(); }
-      });
-
-      // open login modal from guest screen
-      document.body.addEventListener('click', (e) => {
-        const guestBtn = e.target.closest('#guest-signin-btn');
-        if (guestBtn) { e.preventDefault(); openLoginModal(); }
-      });
-
-      // close interactions
-      $('#close-login-btn')?.addEventListener('click', () => closeLoginModal());
-      $('#cancel-login')?.addEventListener('click', () => closeLoginModal());
-      $('#login-modal')?.addEventListener('click', (e) => {
-        if (e.target === $('#login-modal')) closeLoginModal();
-      });
-
-      // ensure clicking the "Sign in" button triggers the form submit reliably
-      $('#submit-login')?.addEventListener('click', (e) => {
-        e.preventDefault(); $('#login-form')?.requestSubmit();
-      });
-
-      // submit login form
-      $('#login-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = $('#login-email')?.value?.trim();
-        const password = $('#login-password')?.value;
-        const errBox = $('#login-error');
-
-        try {
-          errBox.textContent = '';
-          await signIn(email, password);
-          closeLoginModal(); // onAuthStateChange will render the feed
-        } catch (err) {
-          errBox.textContent = err?.message || 'Failed to sign in';
-          console.error('Sign-in error:', err);
-        }
-      });
-
-      // logout link
-      $('#logout-link')?.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await signOut(); // onAuthStateChange will show guest screen
-      });
-    }
-
-    function wireSignupModal() {
-      const showSignupBtn = $('#show-signup');
-      const signupModal = $('#signup-modal');
-      const closeSignupBtn = $('#close-signup-btn');
-      const cancelSignupBtn = $('#cancel-signup');
-      const signupForm = $('#signup-form');
-      const signupError = $('#signup-error');
-
-      showSignupBtn?.addEventListener('click', (e) => {
-        e.preventDefault();
-        signupModal?.classList.add('active');
-      });
-
-      closeSignupBtn?.addEventListener('click', () => signupModal?.classList.remove('active'));
-      cancelSignupBtn?.addEventListener('click', () => signupModal?.classList.remove('active'));
-      signupModal?.addEventListener('click', (e) => {
-        if (e.target === signupModal) signupModal.classList.remove('active');
-      });
-
-      signupForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = $('#signup-username').value.trim();
-        const email = $('#signup-email').value.trim();
-        const password = $('#signup-password').value;
-
-        try {
-          signupError.textContent = '';
-          // NOTE: This endpoint is a placeholder. It will 404 until you add a backend.
-          const response = await fetch('/api/auth/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password }),
-          });
-          const data = await response.json();
-          if (!response.ok) throw new Error(data.error);
-          alert('Sign-up successful! Please sign in.');
-          signupModal.classList.remove('active');
-          openLoginModal();
-        } catch (err) {
-          signupError.textContent = err.message || 'Failed to sign up';
-          console.error('Sign-up error:', err);
-        }
-      });
-    }
-
-    // ====== BOOT (robust refresh handling) ======
-    async function updateUIFromSession(session) {
-      await initSidebarCurrentUser();
-      if (session?.user) {
-        hideGuestLogin();
-        await renderHomePage();
-      } else {
-        showGuestLogin();
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      wireHeaderDropdown();
-      wireNav();
-      wireCreatePostModal();
-      wireAuthUI();
-      wireSignupModal();
-      wireOpenLikers();
-
-      const { data: { session} } = await supabase.auth.getSession();
-      await updateUIFromSession(session);
-
-      if (session?.user) { await startLikesRealtime(); }
-
-      supabase.auth.onAuthStateChange(async (_event, session) => {
-        await updateUIFromSession(session);
-        if (session?.user) { await startLikesRealtime(); }
-        else { await stopLikesRealtime(); }
-      });
-    });
-  </script>
+</div>
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Sign in</h2>
+      <span class="close-modal" id="close-login-modal">&times;</span>
+    </div>
+    <form id="login-form" class="modal-form">
+      <div class="modal-form-group">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="modal-form-group">
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" placeholder="••••••••" />
+      </div>
+      <div class="modal-actions">
+        <button id="login-cancel" type="button">Cancel</button>
+        <button id="login-submit" type="submit">Sign in</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Guest “Welcome / Sign in” Screen -->
+<div id="guest-login-screen" class="guest-gate" style="display:none;">
+  <div id="guest-login-card">
+    <h1>Welcome to OnlyCats</h1>
+    <p>Sign in to see the feed.</p>
+    <button id="guest-open-login">Sign in</button>
+  </div>
+</div>
+
+<!-- Likers Modal -->
+<div id="likers-modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Liked by</h2>
+      <span class="close-modal" id="close-likers-modal">&times;</span>
+    </div>
+    <div id="likers-list" class="likers-list"></div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
