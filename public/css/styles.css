@@ -1,3 +1,301 @@
+/* === OnlyCats Combined CSS (index-old + repo styles.css + compat patch) === */
+
+/*
+    ====================================================
+    CSS STYLES
+    ====================================================
+    */
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 935px;
+      padding-top: 54px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .main-content {
+      width: 100%;
+      max-width: 614px;
+      padding-right: 28px;
+      box-sizing: border-box;
+    }
+
+    .right-sidebar {
+      width: 100%;
+      max-width: 293px;
+      padding-left: 28px;
+      box-sizing: border-box;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: #fff;
+      border-bottom: 1px solid #dbdbdb;
+      padding: 0 20px;
+      box-sizing: border-box;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+    }
+
+    .header-content {
+      width: 100%;
+      max-width: 935px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 54px;
+    }
+
+    .header-logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #262626;
+      text-decoration: none;
+    }
+
+    .search-bar {
+      width: 215px;
+      height: 28px;
+      border: 1px solid #dbdbdb;
+      background-color: #fafafa;
+      border-radius: 3px;
+      padding: 0 10px;
+    }
+
+    .nav-icons {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .nav-icons a {
+      font-size: 14px;
+      font-weight: 600;
+      color: #262626;
+      text-decoration: none;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #create-post-btn {
+      background-color: #0095f6;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    #create-post-btn:hover { background-color: #0081e7; }
+
+    .profile-dropdown-container { position: relative; }
+
+    .nav-icons .profile-pic {
+      width: 28px; height: 28px; border-radius: 50%; border: 1px solid #dbdbdb; cursor: pointer;
+    }
+
+    .dropdown-menu {
+      position: absolute; top: calc(100% + 8px); right: 0; background-color: #fff;
+      border: 1px solid #dbdbdb; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 8px 0; min-width: 150px; z-index: 1500;
+      opacity: 0; visibility: hidden; transform: translateY(-10px);
+      transition: opacity .2s, visibility .2s, transform .2s;
+    }
+    .dropdown-menu.active { opacity:1; visibility:visible; transform: translateY(0); }
+    .dropdown-menu a {
+      display:block; padding:10px 16px; font-size:14px; color:#262626; text-decoration:none;
+      transition: background-color .2s;
+    }
+    .dropdown-menu a:hover { background:#fafafa; }
+
+    /* Posts */
+    .post {
+      background: #fff; border: 1px solid #dbdbdb; border-radius: 3px; margin-bottom: 24px;
+    }
+    .text-only-post { margin-bottom: 12px; }
+
+    .post-header { display:flex; align-items:center; padding:16px; }
+    .post-header .user-avatar { width:32px; height:32px; border-radius:50%; margin-right:12px; }
+    .post-header .user-name { font-weight:600; color:#262626; text-decoration:none; cursor:pointer; }
+
+    .post-image-container { width:100%; }
+    .post-image { width:100%; display:block; }
+
+    .post-caption { padding:16px; }
+    .text-only-post .post-caption { padding-top:0; }
+    .text-only-post .post-caption p { margin:0; }
+
+    .post-actions { padding: 0 16px 16px 16px; display:flex; gap:10px; align-items:center; }
+    .post-actions .like-btn { cursor:pointer; }
+
+    .margin-between-posts { height:24px; display:block; }
+    #posts-feed { margin-top: 24px; }
+
+    /* Right sidebar */
+    .sidebar-container { position: fixed; top: 100px; width: 293px; }
+    .sidebar-profile { display:flex; align-items:center; margin-bottom:12px; }
+    .sidebar-profile .profile-pic { width:56px; height:56px; border-radius:50%; margin-right:12px; }
+    .sidebar-profile-info { flex-grow:1; }
+    .sidebar-profile-info .username { font-weight:600; font-size:14px; color:#262626; }
+    .sidebar-profile-info .name { font-size:14px; color:#8e8e8e; margin-top:4px; }
+    .sidebar-profile .switch-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
+
+    .suggestions-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .suggestions-header span { font-weight:600; color:#8e8e8e; font-size:14px;}
+    .suggestions-header a { color:#262626; font-size:12px; font-weight:600; text-decoration:none; }
+
+    .suggestion-item { display:flex; align-items:center; margin-bottom:12px; }
+    .suggestion-item .suggestion-profile-pic { width:32px; height:32px; border-radius:50%; margin-right:12px; }
+    .suggestion-item-info { flex-grow:1; }
+    .suggestion-item-info .username { font-weight:600; font-size:14px; color:#262626; }
+    .suggestion-item-info .follow-info { font-size:12px; color:#8e8e8e; margin-top:2px; }
+    .suggestion-item .follow-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
+
+    .sidebar-footer { margin-top:24px; font-size:11px; color:#c7c7c7; }
+    .sidebar-footer a { color:#c7c7c7; text-decoration:none; }
+
+    /* Modal (shared styles for Create & Login) */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display:flex; justify-content:center; align-items:center; z-index:2000;
+      opacity:0; visibility:hidden; transition: visibility 0s, opacity .3s linear;
+    }
+    .modal-overlay.active { visibility:visible; opacity:1; }
+    .modal-content {
+      background:#fff; border-radius:12px; width:90%; max-width:500px; padding:24px; box-sizing:border-box; position:relative;
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; border-bottom:1px solid #dbdbdb; margin-bottom:16px; }
+    .modal-header h2 { margin:0; font-size:20px; font-weight:600; }
+    .close-modal { font-size:24px; cursor:pointer; color:#8e8e8e; }
+    .modal-form { display:flex; flex-direction:column; gap:16px; }
+    .modal-form-group { display:flex; flex-direction:column; }
+    .modal-form-group label { font-weight:600; margin-bottom:8px; }
+    .modal-form-group input, .modal-form-group textarea { border:1px solid #dbdbdb; border-radius:4px; padding:8px; font-size:14px; }
+    .modal-form-group textarea { resize:vertical; height:100px; }
+    .post-type-buttons { display:flex; gap:10px; margin-bottom:16px; }
+    .post-type-buttons button { background:#efefef; border:1px solid #dbdbdb; border-radius:8px; padding:8px 16px; cursor:pointer; font-weight:600; color:#262626; transition: background-color .2s; }
+    .post-type-buttons button.active { background:#0095f6; color:#fff; border-color:#0095f6; }
+    .modal-actions { display:flex; justify-content:flex-end; gap:10px; padding-top:16px; border-top:1px solid #dbdbdb; }
+    .modal-actions button { padding:8px 16px; border:none; border-radius:4px; font-weight:600; cursor:pointer; }
+    #submit-post { background:#0095f6; color:#fff; }
+    #cancel-post { background:#efefef; color:#262626; }
+
+    /* Profile page */
+    .profile-container { width:100%; padding:24px 0; box-sizing:border-box; }
+    .profile-header { display:flex; align-items:center; justify-content:center; padding-bottom:44px; border-bottom:1px solid #dbdbdb; margin-bottom:44px; }
+    .profile-header .profile-pic { width:150px; height:150px; border-radius:50%; margin-right:80px; }
+    .profile-info { display:flex; flex-direction:column; justify-content:center; }
+    .profile-username { font-size:28px; font-weight:300; margin-bottom:12px; }
+    .profile-post-count { font-size:16px; color:#8e8e8e; margin-bottom:8px; }
+    .profile-full-name { font-size:16px; font-weight:600; }
+
+    .profile-post-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:28px; }
+    .profile-post-item { position:relative; padding-bottom:100%; overflow:hidden; cursor:pointer; }
+    .profile-post-item img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition: transform .2s; }
+    .profile-post-item img:hover { transform: scale(1.05); }
+
+    #content-area { width:100%; }
+
+    /* ====== AUTH GATE & BUTTONS ====== */
+    #guest-login-screen {
+      position: fixed; inset: 0; display: none;
+      align-items: center; justify-content: center;
+      background: #fafafa; z-index: 1500;
+    }
+    #guest-login-card {
+      background:#fff; border:1px solid #dbdbdb; border-radius:12px;
+      width:90%; max-width:420px; padding:24px; text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,0.12);
+    }
+    #guest-login-title { margin:0 0 8px; font-size:22px; font-weight:700; }
+    #guest-login-sub   { margin:0 0 16px; color:#666; font-size:14px; }
+
+    #guest-signin-btn, #submit-login {
+      background:#0095f6; color:#fff;
+      padding:10px 16px; border:0; border-radius:8px;
+      font-weight:600; cursor:pointer;
+    }
+    #guest-signin-btn:hover, #submit-login:hover { background:#0081e7; }
+
+/* ====================================================
+   COMPAT PATCH: new classnames in current index.html & JS
+   - Maps .main-container / .feed-container to old layout sizing
+   - Adds basic styles for #current-user-card and profile grid classes used in posts.js
+   ==================================================== */
+
+.main-container {
+  width: 100%;
+  max-width: 935px;
+  padding-top: 54px;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.feed-container {
+  width: 100%;
+  max-width: 614px;
+  padding-right: 28px;
+  box-sizing: border-box;
+}
+
+/* Current user card (right sidebar mini profile) */
+#current-user-card .current-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#current-user-card .current-user .user-avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 1px solid #dbdbdb;
+}
+#current-user-card .current-user .user-meta .bold { font-weight: 600; }
+
+/* Profile grid used by posts.js */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+.profile-grid-item {
+  position: relative;
+  padding-bottom: 100%;
+  overflow: hidden;
+}
+.profile-grid-item img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+/* Likers modal list */
+.likers-list .liker {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid #efefef;
+}
+.likers-list .liker .user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid #dbdbdb;
+}
+
+/* === Repo overrides (z-index, errors, guest gate tweaks) === */
 /* (All your original <style> CSS moved here — unchanged) */
 
 /*
@@ -31,6 +329,30 @@ body {
 #guest-login-card button {
   background:#0095f6; color:#fff; border:none; border-radius:8px;
   padding:10px 16px; font-weight:600; cursor:pointer;
+}
+
+/* ====== Inline form errors ====== */
+.form-error {
+  color: #d32f2f;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 8px 0 12px;
+  font-size: 0.95rem;
+}
+
+/* ===== Force modals above the guest gate ===== */
+#login-modal.modal-overlay,
+#signup-modal.modal-overlay,
+#create-post-modal.modal-overlay,
+#likers-modal.modal-overlay {
+  z-index: 3000 !important;
+}
+
+/* Optional: keep guest gate below header but under modals */
+#guest-login-screen {
+  z-index: 1500; /* keep or lower if you like (e.g., 1200) */
 }
 
 /* [Full CSS content preserved from your original index.html] */

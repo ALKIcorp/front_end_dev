@@ -3,115 +3,104 @@ import { supabase } from './supabaseClient.js';
 import { $, $all } from './ui.js';
 import { renderHomePage, initSidebarCurrentUser } from './posts.js';
 
-// ---------- Modal helpers (A11y-safe) ----------
-let _lastActive = null;
-let _escHandler = null;
+export async function openLoginModal() {
+  $('#login-error')?.replaceChildren(); // clear errors
+  $('#login-modal')?.classList.add('active');
 
-function setInert(enable) {
-  ['header', 'main', '#guest-login-screen'].forEach(sel => {
-    const el = sel.startsWith('#') ? document.querySelector(sel) : document.querySelector(sel);
-    if (!el) return;
-    if (enable) el.setAttribute('inert', '');
-    else el.removeAttribute('inert');
-  });
+  // Hide guest gate so it never covers the modal
+  const guest = $('#guest-login-screen');
+  if (guest) guest.style.display = 'none';
 }
 
-function ensureAriaSync(modal) {
-  // Guard: whenever .active is present, aria-hidden must be false
-  const sync = () => {
-    if (modal.classList.contains('active')) modal.setAttribute('aria-hidden', 'false');
-  };
-  sync();
-  const mo = new MutationObserver(sync);
-  mo.observe(modal, { attributes: true, attributeFilter: ['class'] });
-  // store on element so we could disconnect later if needed
-  modal._ariaMo = mo;
-}
+export async function closeLoginModal() {
+  $('#login-modal')?.classList.remove('active');
 
-export function openLoginModal() {
-  const modal = document.getElementById('login-modal');
-  if (!modal) return;
-
-  _lastActive = document.activeElement;
-
-  modal.classList.add('active');
-  // Be explicit: the modal is not hidden while open
-  modal.removeAttribute('aria-hidden');           // remove stale value
-  modal.setAttribute('aria-hidden', 'false');     // assert correct value
-  setInert(true);
-  ensureAriaSync(modal);
-
-  // Focus first field
-  document.getElementById('login-email')?.focus();
-
-  // ESC to close
-  if (!_escHandler) {
-    _escHandler = (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('active')) closeLoginModal();
-    };
-    document.addEventListener('keydown', _escHandler);
+  // If still logged out, bring the guest gate back
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    const guest = $('#guest-login-screen');
+    if (guest) guest.style.display = 'flex';
   }
 }
 
-export function closeLoginModal() {
-  const modal = document.getElementById('login-modal');
-  if (!modal) return;
 
-  modal.classList.remove('active');
-  modal.setAttribute('aria-hidden', 'true'); // hidden again
-  setInert(false);
-
-  if (modal._ariaMo) modal._ariaMo.disconnect();
-
-  if (_lastActive && document.body.contains(_lastActive)) {
-    try { _lastActive.focus(); } catch {}
+function setLoginError(text) {
+  const box = $('#login-error');
+  if (box) {
+    box.textContent = text || '';
+    box.style.display = text ? 'block' : 'none';
+  } else if (text) {
+    // fallback
+    alert(text);
   }
 }
 
-// ---------- Supabase calls ----------
 export async function signIn(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  // Basic validation for clearer feedback
+  if (!email || !password) {
+    throw new Error('Please enter both email and password.');
+  }
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
-  return data;
 }
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
 
-// ---------- Guest gate ----------
-export function showGuestLogin() { const el = $('#guest-login-screen'); if (el) el.style.display = 'flex'; }
-export function hideGuestLogin() { const el = $('#guest-login-screen'); if (el) el.style.display = 'none'; }
+export function showGuestLogin() {
+  const el = $('#guest-login-screen');
+  if (el) el.style.display = 'flex';
+}
+export function hideGuestLogin() {
+  const el = $('#guest-login-screen');
+  if (el) el.style.display = 'none';
+}
 
-// ---------- Wire UI (one-time) ----------
-let wired = false;
 export function wireAuthUI() {
-  if (wired) return; wired = true;
+  // Open login modal from "Switch" and guest CTA
+  document.body.addEventListener('click', (e) => {
+    const switchBtn = e.target.closest('#switch-account-btn, #guest-open-login');
+    if (switchBtn) {
+      e.preventDefault();
+      openLoginModal();
+    }
+  });
 
-  // Openers
-  $('#guest-open-login')?.addEventListener('click', (e) => { e.preventDefault(); openLoginModal(); });
-  $('#switch-account-btn')?.addEventListener('click', (e) => { e.preventDefault(); openLoginModal(); });
-
-  // Closers
+  // Close buttons / click outside
   $('#login-cancel')?.addEventListener('click', () => closeLoginModal());
   $('#close-login-modal')?.addEventListener('click', () => closeLoginModal());
-  $('#login-modal')?.addEventListener('click', (e) => { if (e.target === $('#login-modal')) closeLoginModal(); });
+  $('#login-modal')?.addEventListener('click', (e) => {
+    if (e.target === $('#login-modal')) closeLoginModal();
+  });
 
-  // Submit login
-  $('#login-form')?.addEventListener('submit', async (e) => {
+  // Ensure clicking the button triggers the form submit reliably
+  const loginForm = $('#login-form');
+  $('#login-submit')?.addEventListener('click', (e) => {
+    if (loginForm) {
+      e.preventDefault();
+      loginForm.requestSubmit(); // forces submit event
+    }
+  });
+
+  // Submit handler
+  loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    setLoginError(''); // clear prior
+
     const email = $('#login-email')?.value?.trim() || '';
     const password = $('#login-password')?.value || '';
     const btn = $('#login-submit');
+
     try {
       if (btn) btn.disabled = true;
       await signIn(email, password);
-      // optional: clear fields
-      if ($('#login-email')) $('#login-email').value = '';
-      if ($('#login-password')) $('#login-password').value = '';
+      // success → close; UI will refresh via onAuthStateChange
       closeLoginModal();
     } catch (err) {
-      alert('Login failed: ' + err.message);
+      console.error('Login failed:', err);
+      setLoginError(err?.message || 'Login failed. Please try again.');
     } finally {
       if (btn) btn.disabled = false;
     }
@@ -120,20 +109,24 @@ export function wireAuthUI() {
   // Sign out
   $('#signout-btn')?.addEventListener('click', async (e) => {
     e.preventDefault();
-    try { await signOut(); } catch (err) { alert('Sign out failed: ' + err.message); }
+    try {
+      await signOut();
+      // UI will update via onAuthStateChange
+    } catch (err) {
+      console.error('Sign out failed:', err);
+      alert('Sign out failed: ' + (err?.message || 'unknown error'));
+    }
   });
 }
 
-// ---------- Session → UI ----------
 export async function updateUIFromSession(session) {
   await initSidebarCurrentUser();
+
   if (session?.user) {
     hideGuestLogin();
     await renderHomePage();
   } else {
     showGuestLogin();
+    // If modal is open and the user is not logged, keep it available
   }
 }
-
-// (placeholder)
-export function wireSignupModal() {}

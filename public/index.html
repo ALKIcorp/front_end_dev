@@ -4,7 +4,19 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>OnlyCats</title>
-<link href="css/styles.css" rel="stylesheet"/>
+
+<!-- Styles -->
+<link rel="stylesheet" href="./css/styles.css">
+
+<!-- SAFETY: minimal inline CSS in case styles.css fails to load -->
+<style>
+  /* Keep overlays hidden by default; show only when .active is added */
+  .modal-overlay { display: none; }
+  .modal-overlay.active { display: flex; }
+  /* Guest screen is JS-controlled; default to hidden to avoid flashing */
+  #guest-login-screen { display: none; }
+</style>
+
 </head>
 <body>
 <header class="header">
@@ -76,6 +88,10 @@
       <h2>Sign in</h2>
       <span class="close-modal" id="close-login-modal">&times;</span>
     </div>
+
+    <!-- Inline error box -->
+    <div id="login-error" class="form-error" role="alert" aria-live="polite" style="display:none;"></div>
+
     <form id="login-form" class="modal-form">
       <div class="modal-form-group">
         <label for="login-email">Email</label>
@@ -92,6 +108,7 @@
     </form>
   </div>
 </div>
+
 
 <!-- Guest “Welcome / Sign in” Screen -->
 <div id="guest-login-screen" class="guest-gate" style="display:none;">
@@ -113,6 +130,6 @@
   </div>
 </div>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="./js/main.js"></script>
 </body>
 </html>
