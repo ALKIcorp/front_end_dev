@@ -1,6 +1,6 @@
 // Posts: fetch + render + create post modal
 import { supabase } from './supabaseClient.js';
-import { $, $all, escapeHtml } from './ui.js';
+import { $, $all, escapeHtml, formatTimestamp } from './ui.js';
 import { hydrateLikes } from './likes.js';
 
 export const PLACEHOLDER_AVATAR = 'https://via.placeholder.com/150/efefef/777?text=User';
@@ -63,27 +63,30 @@ export function postCardHTML({ id, caption, media_url, media_type, created_at, a
     <div class="post-header">
       <img src="${escapeHtml(avatar)}" alt="${escapeHtml(username)}" class="user-avatar"/>
       <a class="user-name" data-username="${escapeHtml(username)}" href="#/@${escapeHtml(username)}">${escapeHtml(username)}</a>
+      <span class="post-timestamp" data-timestamp="${created_at}">${formatTimestamp(created_at)}</span>
     </div>`;
 
   const media = isImage
     ? `<div class="post-image-container"><img class="post-image" src="${escapeHtml(media_url)}" alt="Post image"/></div>`
-    : `<div class="post-caption text-only-post"><p>${escapeHtml(caption || '')}</p></div>`;
+    : '';
 
   const actions = `
     <div class="post-actions" data-postid="${id}">
-      <button class="like-btn" data-postid="${id}" aria-pressed="false">❤️</button>
+      <button class="like-btn" data-postid="${id}" aria-pressed="false">♡ Like</button>
       <span class="like-count" data-postid="${id}" data-count="0">0</span>
     </div>`;
 
   const captionBlock = isImage
-    ? `<div class="post-caption"><p>${escapeHtml(caption || '')}</p></div>`
-    : '';
+    ? `<div class="post-caption"><p><strong>${escapeHtml(username)}</strong> ${escapeHtml(caption || '')}</p></div>`
+    : `<div class="post-caption text-only-post"><p>${escapeHtml(caption || '')}</p></div>`;
 
-  return `<article class="post" data-postid="${id}">
+  const postClass = isImage ? 'post' : 'post text-only-post';
+
+  return `<article class="${postClass}" data-postid="${id}">
     ${postHeader}
     ${media}
-    ${actions}
     ${captionBlock}
+    ${actions}
   </article><span class="margin-between-posts"></span>`;
 }
 
@@ -141,10 +144,13 @@ export async function renderProfilePageByUsername(username) {
 
 export function attachUsernameClicks() {
   document.querySelectorAll('.user-name[data-username]').forEach(a => {
-    a.addEventListener('click', (e) => {
+    a.addEventListener('click', async (e) => {
       e.preventDefault();
       const u = a.getAttribute('data-username');
-      if (u) window.location.hash = `#/@${u}`;
+      if (u) {
+        window.location.hash = `#/@${u}`;
+        await renderProfilePageByUsername(u);
+      }
     });
   });
 }
@@ -152,20 +158,24 @@ export function attachUsernameClicks() {
 export async function initSidebarCurrentUser() {
   const card = $('#current-user-card');
   const { user, profile } = await getCurrentUserAndProfile();
+  const headerPfp = $('#header-profile-pic'); // Added for dropdown profile pic
   if (!user) {
     card.innerHTML = `<div class="guest-card">Not signed in</div>`;
+    headerPfp && (headerPfp.src = PLACEHOLDER_AVATAR); // Set placeholder for dropdown pic
     return;
   }
   const avatar = profile?.avatar_url || PLACEHOLDER_AVATAR;
   const username = profile?.username || 'me';
   card.innerHTML = `
-    <div class="current-user">
-      <img class="user-avatar" src="${escapeHtml(avatar)}" alt="${escapeHtml(username)}"/>
-      <div class="user-meta">
-        <div class="bold">@${escapeHtml(username)}</div>
-        <div>${escapeHtml(profile?.display_name || '')}</div>
+    <div class="sidebar-profile">
+      <img id="current-user-pfp" src="${escapeHtml(avatar)}" alt="${escapeHtml(username)}" class="profile-pic"/>
+      <div class="sidebar-profile-info">
+        <div id="current-user-username" class="username">@${escapeHtml(username)}</div>
+        <div id="current-user-fullname" class="name">${escapeHtml(profile?.display_name || '')}</div>
       </div>
+      <div class="switch-button" id="switch-account-btn">Switch</div>
     </div>`;
+  headerPfp && (headerPfp.src = profile.avatar_url || PLACEHOLDER_AVATAR); // Set actual profile pic for dropdown
 }
 
 // ====== CREATE POST MODAL ======
@@ -184,32 +194,45 @@ export function wireCreatePostModal() {
 
   // type toggle
   const typeBtns = form?.querySelectorAll('.post-type-buttons button');
-  const imageGroup = document.getElementById('image-input-group');
-  const textGroup = document.getElementById('text-input-group');
-  typeBtns?.forEach(btn => btn.addEventListener('click', () => {
+  const imageUrlGroup = document.getElementById('image-url-group');
+  let currentPostType = 'post';
+
+  typeBtns?.forEach(btn => btn.addEventListener('click', (e) => {
     typeBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const t = btn.getAttribute('data-type');
-    imageGroup.style.display = (t === 'image') ? '' : 'none';
-    textGroup.style.display = (t === 'text') ? '' : 'none';
+    e.currentTarget.classList.add('active');
+    currentPostType = e.currentTarget.dataset.type;
+    imageUrlGroup.style.display = currentPostType === 'post' ? 'flex' : 'none';
   }));
 
   // submit
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const type = form.querySelector('.post-type-buttons .active')?.getAttribute('data-type') || 'image';
-    const caption = document.getElementById('post-caption').value || '';
-    const media_url = type === 'image' ? document.getElementById('post-image').value || null : null;
-    const media_type = type === 'image' ? 'image' : 'text';
+    const caption = document.getElementById('post-caption').value.trim();
+    const imageUrl = document.getElementById('post-image-url').value.trim();
+
+    if (currentPostType === 'text-only' && !caption) {
+      alert('Caption cannot be empty for a text-only post.');
+      return;
+    }
 
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { alert('Please sign in'); return; }
+    if (!user) { alert('Please log in before posting.'); return; }
 
-    const { error } = await supabase.from('posts').insert({
-      author: user.id, caption, media_url, media_type
-    });
-    if (error) { alert('Failed to create post: ' + error.message); return; }
-    modal?.classList.remove('active');
-    await renderHomePage();
+    try {
+      const payload = {
+        author: user.id,
+        caption,
+        media_url: currentPostType === 'post' && imageUrl ? imageUrl : null,
+        media_type: currentPostType === 'post' && imageUrl ? 'image' : 'none',
+      };
+      const { error } = await supabase.from('posts').insert(payload);
+      if (error) throw error;
+
+      await renderHomePage();
+      form.reset();
+      modal?.classList.remove('active');
+    } catch (err) {
+      alert(`Failed to create post: ${err.message}`);
+    }
   });
 }

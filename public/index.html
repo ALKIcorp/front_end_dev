@@ -27,13 +27,14 @@
       <a href="#" id="home-btn">Home</a>
       <a href="#" id="profile-btn">Profile</a>
       <a href="#" id="create-post-btn">Create</a>
-      <div class="dropdown">
-        <button id="user-menu-btn">Account ▾</button>
-        <div class="dropdown-menu" id="user-dropdown">
-          <a href="#" id="switch-account-btn">Switch</a>
-          <a href="#" id="signout-btn">Sign out</a>
+        <div class="profile-dropdown-container">
+          <a href="#" id="profile-pic-btn"><img src="" alt="Profile" class="profile-pic" id="header-profile-pic"/></a>
+          <div id="profile-dropdown-menu" class="dropdown-menu">
+            <a href="#" id="my-profile-link">Profile</a>
+            <a href="#">Settings</a>
+            <a href="#" id="logout-link">Log out</a>
+          </div>
         </div>
-      </div>
     </div>
   </div>
 </header>
@@ -58,12 +59,12 @@
     </div>
     <form id="create-post-form" class="modal-form">
       <div class="post-type-buttons">
-        <button type="button" data-type="image" class="active">Image</button>
-        <button type="button" data-type="text">Text</button>
+        <button type="button" data-type="post" class="active">Post (Image + Text)</button>
+        <button type="button" data-type="text-only">Text Only</button>
       </div>
       <div class="modal-form-group" id="image-input-group">
-        <label for="post-image">Image URL</label>
-        <input type="url" id="post-image" placeholder="https://example.com/cat.jpg"/>
+        <label for="post-image-url">Image URL</label>
+        <input type="text" id="post-image-url" placeholder="Paste an image URL here..."/>
       </div>
       <div class="modal-form-group" id="text-input-group" style="display:none;">
         <label for="post-text">Text content</label>

@@ -107,8 +107,9 @@
 
     .profile-dropdown-container { position: relative; }
 
+
     .nav-icons .profile-pic {
-      width: 28px; height: 28px; border-radius: 50%; border: 1px solid #dbdbdb; cursor: pointer;
+      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
     }
 
     .dropdown-menu {
@@ -134,6 +135,13 @@
     .post-header { display:flex; align-items:center; padding:16px; }
     .post-header .user-avatar { width:32px; height:32px; border-radius:50%; margin-right:12px; }
     .post-header .user-name { font-weight:600; color:#262626; text-decoration:none; cursor:pointer; }
+    .post-header .post-timestamp {
+      font-size: 12px;
+      color: #8e8e8e;
+      margin-left: auto; /* Pushes the timestamp to the right */
+      position: relative;
+      top: -10px; /* Adjust this value to move it up or down */
+    }
 
     .post-image-container { width:100%; }
     .post-image { width:100%; display:block; }
@@ -257,16 +265,18 @@
 }
 
 /* Current user card (right sidebar mini profile) */
-#current-user-card .current-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.current-user-card {
+  position: fixed;
+  top: 100px; /* This matches the top spacing from the header */
+  width: 293px; /* This matches the width of the old sidebar-container */
 }
-#current-user-card .current-user .user-avatar {
-  width: 56px; height: 56px; border-radius: 50%;
-  border: 1px solid #dbdbdb;
-}
-#current-user-card .current-user .user-meta .bold { font-weight: 600; }
+
+.sidebar-profile { display:flex; align-items:center; margin-bottom:12px; }
+.sidebar-profile .profile-pic { width:56px; height:56px; border-radius:50%; margin-right:12px; }
+.sidebar-profile-info { flex-grow:1; }
+.sidebar-profile-info .username { font-weight:600; font-size:14px; color:#262626; }
+.sidebar-profile-info .name { font-size:14px; color:#8e8e8e; margin-top:4px; }
+.sidebar-profile .switch-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
 
 /* Profile grid used by posts.js */
 .profile-grid {
@@ -356,3 +366,46 @@ body {
 }
 
 /* [Full CSS content preserved from your original index.html] */
+
+/* Profile Picture Hover Effect */
+#profile-pic-btn {
+  /* Adjust the thickness of the glowing ring itself */
+  --ring-thickness: 3px;
+  /* Adjust the margin between the image and the glowing ring */
+  --ring-margin: 0px; /* Default to 0 for no space */
+  position: relative; /* Needed for pseudo-element positioning */
+  display: flex; /* Use flexbox to center the image */
+  justify-content: center;
+  align-items: center;
+  width: 30px; /* 28px (image) + 2 * 1px (border) */
+  height: 30px; /* 28px (image) + 2 * 1px (border) */
+  border-radius: 50%;
+  /* Removed box-shadow and transition from here, moved to pseudo-element */
+}
+
+#profile-pic-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the pseudo-element */
+  width: calc(30px + (2 * var(--ring-margin))); /* Parent width + 2 * ring margin */
+  height: calc(30px + (2 * var(--ring-margin))); /* Parent height + 2 * ring margin */
+  border-radius: 50%;
+  box-shadow: 0 0 0 0px #0095f6; /* Initial state: no glow */
+  transition: box-shadow 0.3s ease-in-out; /* Smooth transition for the glow */
+  pointer-events: none; /* Allows interaction with the image below */
+}
+
+#profile-pic-btn:hover::after {
+  box-shadow: 0 0 0 var(--ring-thickness) #0095f6; /* Glow on hover */
+}
+
+#profile-pic-btn .profile-pic {
+  display: block;
+  width: 28px; /* Original image size */
+  height: 28px; /* Original image size */
+  border-radius: 50%;
+  border: 1px solid #dbdbdb; /* Border for the profile picture image */
+  object-fit: cover; /* Ensures the image covers the area without distortion */
+}

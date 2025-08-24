@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OnlyCats</title>
+
+<!-- CSS Styles -->
+<link rel="stylesheet" href="./css/styles.css">
+
+<!-- MIGHT REMOVE THIS BLOCK IM NOT SURE IF WE REALLY NEED IT YET -->
+<!-- SAFETY: minimal inline CSS in case styles.css fails to load -->
+<style>
+  /* Keep overlays hidden by default; show only when .active is added */
+  .modal-overlay { display: none; }
+  .modal-overlay.active { display: flex; }
+  /* Guest screen is JS-controlled; default to hidden to avoid flashing */
+  #guest-login-screen { display: none; }
+</style>
+
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="#" class="header-logo" id="home-link">OnlyCats</a>
+      <input type="text" class="search-bar" placeholder="Search"/>
+      <div class="nav-icons">
+        <a href="#" id="home-btn">Home</a>
+        <a href="#" id="create-post-btn">Create</a>
+        <a href="#">Messages</a>
+        <div class="profile-dropdown-container">
+          <a href="#" id="profile-pic-btn"><img src="" alt="Profile" class="profile-pic" id="header-profile-pic"/></a>
+          <div id="profile-dropdown-menu" class="dropdown-menu">
+            <a href="#" id="my-profile-link">Profile</a>
+            <a href="#">Settings</a>
+            <a href="#" id="logout-link">Log out</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-container">
+    <div class="main-content">
+      <div id="content-area"></div>
+    </div>
+
+    <div class="right-sidebar">
+      <div class="sidebar-container">
+        <div class="sidebar-profile">
+          <img id="current-user-pfp" src="" alt="Profile" class="profile-pic"/>
+          <div class="sidebar-profile-info">
+            <div id="current-user-username" class="username"></div>
+            <div id="current-user-fullname" class="name"></div>
+          </div>
+          <div class="switch-button" id="switch-account-btn">Switch</div>
+        </div>
+
+        <div class="suggestions-header">
+          <span>Suggestions For You</span>
+          <a href="#">See All</a>
+        </div>
+
+        <div id="suggestions-list" class="suggestions-list"></div>
+
+        <div class="sidebar-footer">
+          <p>
+            <a href="#">About</a> · <a href="#">Help</a> · <a href="#">Press</a> · <a href="#">API</a> · <a href="#">Jobs</a> · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Locations</a> · <a href="#">Top Accounts</a> · <a href="#">Hashtags</a> · <a href="#">Language</a>
+          </p>
+          <p>© 2025 ONLYCATS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Post Modal -->
+  <div id="create-post-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Create a new post</h2>
+        <span class="close-modal" id="close-modal-btn">&times;</span>
+      </div>
+      <form id="create-post-form" class="modal-form">
+        <div class="post-type-buttons">
+          <button type="button" class="post-type-btn active" data-type="post">Post (Image + Text)</button>
+          <button type="button" class="post-type-btn" data-type="text-only">Text Only</button>
+        </div>
+
+        <div class="modal-form-group" id="image-url-group">
+          <label for="post-image-url">Image URL</label>
+          <input type="text" id="post-image-url" placeholder="Paste an image URL here..."/>
+        </div>
+
+        <div class="modal-form-group">
+          <label for="post-caption">Caption</label>
+          <textarea id="post-caption" placeholder="Write a caption..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancel-post">Cancel</button>
+          <button type="submit" id="submit-post">Share</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Sign in</h2>
+        <span class="close-modal" id="close-login-btn">&times;</span>
+      </div>
+      <form id="login-form" class="modal-form" autocomplete="on">
+        <div class="modal-form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" placeholder="you@example.com" required />
+        </div>
+        <div class="modal-form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+        <div id="login-error" style="color:#d33; font-size:13px; min-height:18px;"></div>
+        <div class="modal-actions">
+          <button type="button" id="cancel-login">Cancel</button>
+          <button type="submit" id="submit-login">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<!-- Guest “Welcome / Sign in” Screen -->
+<div id="guest-login-screen" class="guest-gate" style="display:none;">
+  <div id="guest-login-card">
+    <h1>Welcome to OnlyCats</h1>
+    <p>Sign in to see the feed.</p>
+    <button id="guest-open-login">Sign in</button>
+  </div>
+</div>
+  </section>
+
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Sign up</h2>
+        <span class="close-modal" id="close-signup-btn">&times;</span>
+      </div>
+      <form id="signup-form" class="modal-form" autocomplete="on">
+        <div class="modal-form-group">
+          <label for="signup-username">Username</label>
+          <input type="text" id="signup-username" placeholder="Choose a username" required />
+        </div>
+        <div class="modal-form-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" placeholder="you@example.com" required />
+        </div>
+        <div class="modal-form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="••••••••" required />
+        </div>
+        <div id="signup-error" style="color:#d33; font-size:13px; min-height:18px;"></div>
+        <div class="modal-actions">
+          <button type="button" id="cancel-signup">Cancel</button>
+          <button type="submit" id="submit-signup">Sign up</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

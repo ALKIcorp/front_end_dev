@@ -1,6 +1,6 @@
 // public/js/main.js
 import { supabase } from './supabaseClient.js';
-import { wireHeaderDropdown, wireNav } from './ui.js';
+import { wireHeaderDropdown, wireNav, updateTimestamps } from './ui.js';
 import { wireCreatePostModal } from './posts.js';
 import { wireLikeClicks, startLikesRealtime, stopLikesRealtime, wireOpenLikers } from './likes.js';
 import { wireAuthUI, updateUIFromSession } from './auth.js';
@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     wireAuthUI();
     wireOpenLikers?.();
     wireLikeClicks();
+    updateTimestamps(); // Initial call
+    setInterval(updateTimestamps, 60 * 1000); // Update every minute
 
     // Initial session check
     const { data: { session } } = await supabase.auth.getSession();
