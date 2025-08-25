@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>OnlyCats — Settings</title>
+
+  <!-- No-flash theme pre-init -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('oc_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+      } catch (_) {}
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a class="header-logo" href="./" id="home-link">OnlyCats</a>
+      <div class="nav-icons">
+        <a href="./">Home</a>
+        <a href="./settings.html" aria-current="page">Settings</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container" style="padding: 24px;">
+    <!-- Adjust margins for the H1 heading (percentages for responsiveness) -->
+    <h1 style="margin-top: 4%; margin-bottom: 1%; margin-right: 4%;">Settings</h1>
+
+    <!-- Adjust top margin to distance from header -->
+    <section class="card" style="max-width: 520px; padding: 16px; margin-top: 10vh;">
+      <h2>Appearance</h2>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:12px;">
+        <label class="switch">
+          <input type="checkbox" id="dark-mode-slider" />
+          <span class="slider"></span>
+        </label>
+        <span id="dark-mode-label">Light</span>
+      </div>
+      <p style="margin-top: 8px; color: var(--muted);">
+        Toggle to switch between Light and Dark mode. Your choice is remembered.
+      </p>
+    </section>
+  </main>
+
+  <!-- Theme + page wiring -->
+  <script type="module" src="js/settings.js"></script>
+</body>
+</html>

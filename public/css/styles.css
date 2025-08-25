@@ -6,13 +6,51 @@
     ====================================================
     */
 
+    :root {
+      --bg: #fafafa;
+      --text: #262626;
+      --muted: #8e8e8e;
+      --border: #dbdbdb;
+      --card-bg: #fff;
+      --accent: #0095f6;
+      --accent-hover: #0081e7;
+      --accent-contrast: #fff;
+      --button-secondary-bg: #efefef;
+      --button-secondary-text: #262626;
+      --error-bg: #fdecea;
+      --error-text: #d32f2f;
+      color-scheme: light dark;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1a1a1a;
+      --text: #f5f5f5;
+      --muted: #b3b3b3;
+      --border: #363636;
+      --card-bg: #262626;
+      --accent: #0095f6; /* Keep accent color consistent */
+      --accent-hover: #0081e7;
+      --accent-contrast: #fff;
+      --button-secondary-bg: #363636;
+      --button-secondary-text: #f5f5f5;
+      --error-bg: #4a1c1c;
+      --error-text: #ff8a80;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #fafafa;
+      background-color: var(--bg);
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
+      color: var(--text);
+    }
+
+    /* DEBUG: Direct dark mode application for testing */
+    html[data-theme="dark"] body {
+      background-color: var(--bg); /* Dark background */
+      color: var(--text); /* Light text */
     }
 
     .page-container {
@@ -41,8 +79,8 @@
       position: fixed;
       top: 0;
       width: 100%;
-      background-color: #fff;
-      border-bottom: 1px solid #dbdbdb;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border);
       padding: 0 20px;
       box-sizing: border-box;
       z-index: 1000;
@@ -62,17 +100,18 @@
     .header-logo {
       font-size: 24px;
       font-weight: bold;
-      color: #262626;
+      color: var(--text);
       text-decoration: none;
     }
 
     .search-bar {
       width: 215px;
       height: 28px;
-      border: 1px solid #dbdbdb;
-      background-color: #fafafa;
+      border: 1px solid var(--border);
+      background-color: var(--bg);
       border-radius: 3px;
       padding: 0 10px;
+      color: var(--text);
     }
 
     .nav-icons {
@@ -84,7 +123,7 @@
     .nav-icons a {
       font-size: 14px;
       font-weight: 600;
-      color: #262626;
+      color: var(--text);
       text-decoration: none;
       padding: 0 8px;
       display: flex;
@@ -93,8 +132,8 @@
     }
 
     #create-post-btn {
-      background-color: #0095f6;
-      color: #fff;
+      background-color: var(--accent);
+      color: var(--accent-contrast);
       padding: 8px 12px;
       border-radius: 6px;
       font-size: 14px;
@@ -103,7 +142,19 @@
       text-decoration: none;
       transition: background-color 0.2s;
     }
-    #create-post-btn:hover { background-color: #0081e7; }
+    #create-post-btn:hover { background-color: var(--accent-hover); }
+
+    .icon-button {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     .profile-dropdown-container { position: relative; }
 
@@ -113,31 +164,31 @@
     }
 
     .dropdown-menu {
-      position: absolute; top: calc(100% + 8px); right: 0; background-color: #fff;
-      border: 1px solid #dbdbdb; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: absolute; top: calc(100% + 8px); right: 0; background-color: var(--card-bg);
+      border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       padding: 8px 0; min-width: 150px; z-index: 1500;
       opacity: 0; visibility: hidden; transform: translateY(-10px);
       transition: opacity .2s, visibility .2s, transform .2s;
     }
     .dropdown-menu.active { opacity:1; visibility:visible; transform: translateY(0); }
     .dropdown-menu a {
-      display:block; padding:10px 16px; font-size:14px; color:#262626; text-decoration:none;
+      display:block; padding:10px 16px; font-size:14px; color:var(--text); text-decoration:none;
       transition: background-color .2s;
     }
-    .dropdown-menu a:hover { background:#fafafa; }
+    .dropdown-menu a:hover { background:var(--bg); }
 
     /* Posts */
     .post {
-      background: #fff; border: 1px solid #dbdbdb; border-radius: 3px; margin-bottom: 24px;
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 3px; margin-bottom: 24px;
     }
     .text-only-post { margin-bottom: 12px; }
 
     .post-header { display:flex; align-items:center; padding:16px; }
     .post-header .user-avatar { width:32px; height:32px; border-radius:50%; margin-right:12px; }
-    .post-header .user-name { font-weight:600; color:#262626; text-decoration:none; cursor:pointer; }
+    .post-header .user-name { font-weight:600; color:var(--text); text-decoration:none; cursor:pointer; }
     .post-header .post-timestamp {
       font-size: 12px;
-      color: #8e8e8e;
+      color: var(--muted);
       margin-left: auto; /* Pushes the timestamp to the right */
       position: relative;
       top: -10px; /* Adjust this value to move it up or down */
@@ -151,7 +202,24 @@
     .text-only-post .post-caption p { margin:0; }
 
     .post-actions { padding: 0 16px 16px 16px; display:flex; gap:10px; align-items:center; }
-    .post-actions .like-btn { cursor:pointer; }
+    .post-actions .like-btn {
+      cursor: pointer;
+      background-color: transparent; /* Ensure no background fill */
+      border: none; /* Remove any default button border */
+      color: var(--text); /* Default color for the like button */
+      display: flex; /* Align icon and text */
+      align-items: center;
+      gap: 4px; /* Space between icon and text */
+      padding: 0; /* Remove default button padding */
+    }
+    .post-actions .like-btn svg {
+      fill: currentColor; /* Use the current text color for the SVG fill */
+      width: 24px; /* Adjust size as needed */
+      height: 24px; /* Adjust size as needed */
+    }
+    .post-actions .like-btn[aria-pressed="true"] {
+      color: var(--accent); /* Accent color when liked */
+    }
 
     .margin-between-posts { height:24px; display:block; }
     #posts-feed { margin-top: 24px; }
@@ -161,20 +229,20 @@
     .sidebar-profile { display:flex; align-items:center; margin-bottom:12px; }
     .sidebar-profile .profile-pic { width:56px; height:56px; border-radius:50%; margin-right:12px; }
     .sidebar-profile-info { flex-grow:1; }
-    .sidebar-profile-info .username { font-weight:600; font-size:14px; color:#262626; }
-    .sidebar-profile-info .name { font-size:14px; color:#8e8e8e; margin-top:4px; }
-    .sidebar-profile .switch-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
+    .sidebar-profile-info .username { font-weight:600; font-size:14px; color:var(--text); }
+    .sidebar-profile-info .name { font-size:14px; color:var(--muted); margin-top:4px; }
+    .sidebar-profile .switch-button { color:var(--accent); font-weight:600; font-size:12px; cursor:pointer; }
 
     .suggestions-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-    .suggestions-header span { font-weight:600; color:#8e8e8e; font-size:14px;}
-    .suggestions-header a { color:#262626; font-size:12px; font-weight:600; text-decoration:none; }
+    .suggestions-header span { font-weight:600; color:var(--muted); font-size:14px;}
+    .suggestions-header a { color:var(--text); font-size:12px; font-weight:600; text-decoration:none; }
 
     .suggestion-item { display:flex; align-items:center; margin-bottom:12px; }
     .suggestion-item .suggestion-profile-pic { width:32px; height:32px; border-radius:50%; margin-right:12px; }
     .suggestion-item-info { flex-grow:1; }
-    .suggestion-item-info .username { font-weight:600; font-size:14px; color:#262626; }
-    .suggestion-item-info .follow-info { font-size:12px; color:#8e8e8e; margin-top:2px; }
-    .suggestion-item .follow-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
+    .suggestion-item-info .username { font-weight:600; font-size:14px; color:var(--text); }
+    .suggestion-item-info .follow-info { font-size:12px; color:var(--muted); margin-top:2px; }
+    .suggestion-item .follow-button { color:var(--accent); font-weight:600; font-size:12px; cursor:pointer; }
 
     .sidebar-footer { margin-top:24px; font-size:11px; color:#c7c7c7; }
     .sidebar-footer a { color:#c7c7c7; text-decoration:none; }
@@ -187,32 +255,32 @@
     }
     .modal-overlay.active { visibility:visible; opacity:1; }
     .modal-content {
-      background:#fff; border-radius:12px; width:90%; max-width:500px; padding:24px; box-sizing:border-box; position:relative;
+      background:var(--card-bg); border-radius:12px; width:90%; max-width:500px; padding:24px; box-sizing:border-box; position:relative;
     }
-    .modal-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; border-bottom:1px solid #dbdbdb; margin-bottom:16px; }
-    .modal-header h2 { margin:0; font-size:20px; font-weight:600; }
-    .close-modal { font-size:24px; cursor:pointer; color:#8e8e8e; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+    .modal-header h2 { margin:0; font-size:20px; font-weight:600; color:var(--text); }
+    .close-modal { font-size:24px; cursor:pointer; color:var(--muted); }
     .modal-form { display:flex; flex-direction:column; gap:16px; }
     .modal-form-group { display:flex; flex-direction:column; }
-    .modal-form-group label { font-weight:600; margin-bottom:8px; }
-    .modal-form-group input, .modal-form-group textarea { border:1px solid #dbdbdb; border-radius:4px; padding:8px; font-size:14px; }
+    .modal-form-group label { font-weight:600; margin-bottom:8px; color:var(--text); }
+    .modal-form-group input, .modal-form-group textarea { border:1px solid var(--border); border-radius:4px; padding:8px; font-size:14px; background-color: var(--bg); color: var(--text); }
     .modal-form-group textarea { resize:vertical; height:100px; }
     .post-type-buttons { display:flex; gap:10px; margin-bottom:16px; }
-    .post-type-buttons button { background:#efefef; border:1px solid #dbdbdb; border-radius:8px; padding:8px 16px; cursor:pointer; font-weight:600; color:#262626; transition: background-color .2s; }
-    .post-type-buttons button.active { background:#0095f6; color:#fff; border-color:#0095f6; }
-    .modal-actions { display:flex; justify-content:flex-end; gap:10px; padding-top:16px; border-top:1px solid #dbdbdb; }
+    .post-type-buttons button { background:var(--button-secondary-bg); border:1px solid var(--border); border-radius:8px; padding:8px 16px; cursor:pointer; font-weight:600; color:var(--button-secondary-text); transition: background-color .2s; }
+    .post-type-buttons button.active { background:var(--accent); color:var(--accent-contrast); border-color:var(--accent); }
+    .modal-actions { display:flex; justify-content:flex-end; gap:10px; padding-top:16px; border-top:1px solid var(--border); }
     .modal-actions button { padding:8px 16px; border:none; border-radius:4px; font-weight:600; cursor:pointer; }
-    #submit-post { background:#0095f6; color:#fff; }
-    #cancel-post { background:#efefef; color:#262626; }
+    #submit-post { background:var(--accent); color:var(--accent-contrast); }
+    #cancel-post { background:var(--button-secondary-bg); color:var(--button-secondary-text); }
 
     /* Profile page */
     .profile-container { width:100%; padding:24px 0; box-sizing:border-box; }
-    .profile-header { display:flex; align-items:center; justify-content:center; padding-bottom:44px; border-bottom:1px solid #dbdbdb; margin-bottom:44px; }
+    .profile-header { display:flex; align-items:center; justify-content:center; padding-bottom:44px; border-bottom:1px solid var(--border); margin-bottom:44px; }
     .profile-header .profile-pic { width:150px; height:150px; border-radius:50%; margin-right:80px; }
     .profile-info { display:flex; flex-direction:column; justify-content:center; }
-    .profile-username { font-size:28px; font-weight:300; margin-bottom:12px; }
-    .profile-post-count { font-size:16px; color:#8e8e8e; margin-bottom:8px; }
-    .profile-full-name { font-size:16px; font-weight:600; }
+    .profile-username { font-size:28px; font-weight:300; margin-bottom:12px; color:var(--text); }
+    .profile-post-count { font-size:16px; color:var(--muted); margin-bottom:8px; }
+    .profile-full-name { font-size:16px; font-weight:600; color:var(--text); }
 
     .profile-post-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:28px; }
     .profile-post-item { position:relative; padding-bottom:100%; overflow:hidden; cursor:pointer; }
@@ -225,22 +293,22 @@
     #guest-login-screen {
       position: fixed; inset: 0; display: none;
       align-items: center; justify-content: center;
-      background: #fafafa; z-index: 1500;
+      background: var(--bg); z-index: 1500;
     }
     #guest-login-card {
-      background:#fff; border:1px solid #dbdbdb; border-radius:12px;
+      background:var(--card-bg); border:1px solid var(--border); border-radius:12px;
       width:90%; max-width:420px; padding:24px; text-align:center;
       box-shadow:0 10px 30px rgba(0,0,0,0.12);
     }
-    #guest-login-title { margin:0 0 8px; font-size:22px; font-weight:700; }
-    #guest-login-sub   { margin:0 0 16px; color:#666; font-size:14px; }
+    #guest-login-title { margin:0 0 8px; font-size:22px; font-weight:700; color:var(--text); }
+    #guest-login-sub   { margin:0 0 16px; color:var(--muted); font-size:14px; }
 
     #guest-signin-btn, #submit-login {
-      background:#0095f6; color:#fff;
+      background:var(--accent); color:var(--accent-contrast);
       padding:10px 16px; border:0; border-radius:8px;
       font-weight:600; cursor:pointer;
     }
-    #guest-signin-btn:hover, #submit-login:hover { background:#0081e7; }
+    #guest-signin-btn:hover, #submit-login:hover { background:var(--accent-hover); }
 
 /* ====================================================
    COMPAT PATCH: new classnames in current index.html & JS
@@ -274,9 +342,9 @@
 .sidebar-profile { display:flex; align-items:center; margin-bottom:12px; }
 .sidebar-profile .profile-pic { width:56px; height:56px; border-radius:50%; margin-right:12px; }
 .sidebar-profile-info { flex-grow:1; }
-.sidebar-profile-info .username { font-weight:600; font-size:14px; color:#262626; }
-.sidebar-profile-info .name { font-size:14px; color:#8e8e8e; margin-top:4px; }
-.sidebar-profile .switch-button { color:#0095f6; font-weight:600; font-size:12px; cursor:pointer; }
+.sidebar-profile-info .username { font-weight:600; font-size:14px; color:var(--text); }
+.sidebar-profile-info .name { font-size:14px; color:var(--muted); margin-top:4px; }
+.sidebar-profile .switch-button { color:var(--accent); font-weight:600; font-size:12px; cursor:pointer; }
 
 /* Profile grid used by posts.js */
 .profile-grid {
@@ -298,11 +366,11 @@
 /* Likers modal list */
 .likers-list .liker {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 0; border-bottom: 1px solid #efefef;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
 }
 .likers-list .liker .user-avatar {
   width: 32px; height: 32px; border-radius: 50%;
-  border: 1px solid #dbdbdb;
+  border: 1px solid var(--border);
 }
 
 /* === Repo overrides (z-index, errors, guest gate tweaks) === */
@@ -316,8 +384,9 @@ CSS STYLES
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #fafafa;
+  background-color: var(--bg);
   margin: 0;
+  color: var(--text);
 }
 
 /* ... the entire stylesheet from your <style> tag is here ... */
@@ -327,25 +396,25 @@ body {
 #guest-login-screen {
   position: fixed; inset: 0; display: none;
   align-items: center; justify-content: center;
-  background: #fafafa; z-index: 1500;
+  background: var(--bg); z-index: 1500;
 }
 #guest-login-card {
-  background:#fff; border:1px solid #dbdbdb;
+  background:var(--card-bg); border:1px solid var(--border);
   border-radius:12px; padding:24px; width:360px; text-align:center;
   box-shadow: 0 2px 12px rgba(0,0,0,.06);
 }
-#guest-login-card h1 { margin: 0 0 8px; }
-#guest-login-card p { color:#777; margin: 0 0 16px; }
+#guest-login-card h1 { margin: 0 0 8px; color:var(--text); }
+#guest-login-card p { color:var(--muted); margin: 0 0 16px; }
 #guest-login-card button {
-  background:#0095f6; color:#fff; border:none; border-radius:8px;
+  background:var(--accent); color:var(--accent-contrast); border:none; border-radius:8px;
   padding:10px 16px; font-weight:600; cursor:pointer;
 }
 
 /* ====== Inline form errors ====== */
 .form-error {
-  color: #d32f2f;
-  background: #fdecea;
-  border: 1px solid #f5c6cb;
+  color: var(--error-text);
+  background: var(--error-bg);
+  border: 1px solid var(--error-text); /* Using error-text for border for consistency */
   border-radius: 8px;
   padding: 10px 12px;
   margin: 8px 0 12px;
@@ -383,6 +452,81 @@ body {
   /* Removed box-shadow and transition from here, moved to pseudo-element */
 }
 
+/* Slider switch styles */
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-item label {
+  font-size: 16px;
+  color: var(--text);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f44336; /* Red for off */
+  transition: .4s;
+  border: 1px solid #000; /* Black outline */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50; /* Green for on */
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
 #profile-pic-btn::after {
   content: '';
   position: absolute;
@@ -392,13 +536,13 @@ body {
   width: calc(30px + (2 * var(--ring-margin))); /* Parent width + 2 * ring margin */
   height: calc(30px + (2 * var(--ring-margin))); /* Parent height + 2 * ring margin */
   border-radius: 50%;
-  box-shadow: 0 0 0 0px #0095f6; /* Initial state: no glow */
+  box-shadow: 0 0 0 0px var(--accent); /* Initial state: no glow */
   transition: box-shadow 0.3s ease-in-out; /* Smooth transition for the glow */
   pointer-events: none; /* Allows interaction with the image below */
 }
 
 #profile-pic-btn:hover::after {
-  box-shadow: 0 0 0 var(--ring-thickness) #0095f6; /* Glow on hover */
+  box-shadow: 0 0 0 var(--ring-thickness) var(--accent); /* Glow on hover */
 }
 
 #profile-pic-btn .profile-pic {
@@ -406,6 +550,117 @@ body {
   width: 28px; /* Original image size */
   height: 28px; /* Original image size */
   border-radius: 50%;
-  border: 1px solid #dbdbdb; /* Border for the profile picture image */
+  border: 1px solid var(--border); /* Border for the profile picture image */
   object-fit: cover; /* Ensures the image covers the area without distortion */
+}
+
+/* ====================================================
+   THEME VARIABLES (Light default + Dark overrides)
+   Append to bottom of styles.css
+   ==================================================== */
+
+:root {
+  color-scheme: light dark;
+  --bg: #fafafa;
+  --text: #111111;
+  --card-bg: #ffffff;
+  --border: #dbdbdb;
+  --muted: #6b7280;
+  --accent: #0095f6;
+  --overlay: rgba(0,0,0,0.6);
+  --shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --text: #eaeaea;
+  --card-bg: #161a20;
+  --border: #2a2f3a;
+  --muted: #a1a1aa;
+  --accent: #4ea1ff;
+  --overlay: rgba(0,0,0,0.65);
+  --shadow: 0 2px 16px rgba(0,0,0,.35);
+}
+
+/* Apply globally */
+html, body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Common surfaces */
+.header,
+.dropdown-menu,
+.modal-content,
+#guest-login-card,
+.card {
+  background: var(--card-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow);
+}
+
+/* Borders that used to be #dbdbdb */
+.header,
+.dropdown-menu,
+.modal-header,
+.post,
+.profile-header,
+.modal-actions {
+  border-color: var(--border) !important;
+}
+
+/* Text that used to be #262626 / #777 / #8e8e8e */
+.header-logo,
+.nav-icons a,
+.user-name,
+.no-posts-message {
+  color: var(--text);
+}
+#guest-login-card p,
+.form-error,
+.muted,
+.profile-post-count {
+  color: var(--muted);
+}
+
+/* Buttons that used to be #0095f6 */
+#guest-login-card button,
+#submit-post,
+#login-submit,
+#switch-account-btn,
+a.button-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Modal overlay respects dark */
+.modal-overlay {
+  background: var(--overlay);
+}
+
+/* ====== Nice little toggle switch for settings ====== */
+.switch {
+  position: relative; display: inline-block; width: 48px; height: 28px;
+}
+.switch input { display: none; }
+.slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  transition: transform .2s, background .2s;
+}
+.slider:before {
+  content: ""; position: absolute; height: 22px; width: 22px;
+  left: 3px; top: 3px; border-radius: 50%;
+  background: var(--card-bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  transition: transform .2s;
+}
+.switch input:checked + .slider {
+  background: var(--accent);
+}
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
 }

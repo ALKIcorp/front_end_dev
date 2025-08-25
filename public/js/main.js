@@ -4,9 +4,12 @@ import { wireHeaderDropdown, wireNav, updateTimestamps } from './ui.js';
 import { wireCreatePostModal } from './posts.js';
 import { wireLikeClicks, startLikesRealtime, stopLikesRealtime, wireOpenLikers } from './likes.js';
 import { wireAuthUI, updateUIFromSession } from './auth.js';
+import { initTheme } from './theme.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
+    initTheme(); // ← ensure index uses saved theme immediately
+
     wireHeaderDropdown();
     wireNav();
     wireCreatePostModal();

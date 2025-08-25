@@ -59,6 +59,7 @@ export async function wireNav() {
     const home = e.target.closest('#home-btn, #home-link');
     const profileBtn = e.target.closest('#profile-btn');
     const myProfileLink = e.target.closest('#my-profile-link');
+    const settingsLink = e.target.closest('#settings-link, #settings-btn');
 
     if (home) {
       e.preventDefault();
@@ -75,6 +76,11 @@ export async function wireNav() {
       } else {
         alert('Please log in to view your profile.');
       }
+      return;
+    }
+    if (settingsLink) {
+      e.preventDefault();
+      window.location.href = './settings.html';
       return;
     }
   });

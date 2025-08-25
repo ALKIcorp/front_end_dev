@@ -5,6 +5,17 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>OnlyCats</title>
 
+<!-- No-flash theme pre-init -->
+<script>
+  // Set theme ASAP to avoid white flash
+  (function () {
+    try {
+      var saved = localStorage.getItem('oc_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+    } catch (_) {}
+  })();
+</script>
+
 <!-- Styles -->
 <link rel="stylesheet" href="./css/styles.css">
 
@@ -31,7 +42,7 @@
           <a href="#" id="profile-pic-btn"><img src="" alt="Profile" class="profile-pic" id="header-profile-pic"/></a>
           <div id="profile-dropdown-menu" class="dropdown-menu">
             <a href="#" id="my-profile-link">Profile</a>
-            <a href="#">Settings</a>
+            <a href="settings.html" id="settings-link">Settings</a>
             <a href="#" id="logout-link">Log out</a>
           </div>
         </div>
