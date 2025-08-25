@@ -67,7 +67,7 @@ export function postCardHTML({ id, caption, media_url, media_type, created_at, a
     </div>`;
 
   const media = isImage
-    ? `<div class="post-image-container"><img class="post-image" src="${escapeHtml(media_url)}" alt="Post image"/></div>`
+    ? `<div class="post-image-container"><img class="post-image" src="${media_url}" alt="Post image"/></div>`
     : '';
 
   const actions = `
@@ -195,6 +195,7 @@ export function wireCreatePostModal() {
   // type toggle
   const typeBtns = form?.querySelectorAll('.post-type-buttons button');
   const imageUrlGroup = document.getElementById('image-url-group');
+  const textInputGroup = document.getElementById('text-input-group'); // Added this line
   let currentPostType = 'post';
 
   typeBtns?.forEach(btn => btn.addEventListener('click', (e) => {
@@ -202,16 +203,20 @@ export function wireCreatePostModal() {
     e.currentTarget.classList.add('active');
     currentPostType = e.currentTarget.dataset.type;
     imageUrlGroup.style.display = currentPostType === 'post' ? 'flex' : 'none';
+    textInputGroup.style.display = currentPostType === 'text-only' ? 'flex' : 'none'; // Added this line
   }));
 
   // submit
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const caption = document.getElementById('post-caption').value.trim();
+    const postCaption = document.getElementById('post-caption').value.trim();
+    const postText = document.getElementById('post-text').value.trim(); // Added this line
     const imageUrl = document.getElementById('post-image-url').value.trim();
 
-    if (currentPostType === 'text-only' && !caption) {
-      alert('Caption cannot be empty for a text-only post.');
+    const caption = currentPostType === 'text-only' ? postText : postCaption; // Modified this line
+
+    if (!caption && currentPostType === 'text-only') { // Modified this line
+      alert('Text content cannot be empty for a text-only post.'); // Modified this line
       return;
     }
 
@@ -223,7 +228,7 @@ export function wireCreatePostModal() {
         author: user.id,
         caption,
         media_url: currentPostType === 'post' && imageUrl ? imageUrl : null,
-        media_type: currentPostType === 'post' && imageUrl ? 'image' : 'none',
+        media_type: currentPostType === 'post' && imageUrl ? 'image' : currentPostType, // Modified this line
       };
       const { error } = await supabase.from('posts').insert(payload);
       if (error) throw error;
